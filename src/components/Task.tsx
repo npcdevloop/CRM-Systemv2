@@ -30,7 +30,7 @@ function Task({ id, title, created, isDone, fetchTasks }: Todo & fetchTasks) {
     }
 
     function handleSubmit() {
-        const title = inputRef.current?.value ?? ''
+        const title = inputRef.current?.value.trim() ?? ''
         if (title.trim() === '' || title.length <= 1) {
             setError("Ошибка сохранения! Минимум 2 символа, максимум 64!")
         } else if (title.length >= 2 && title.length <= 64) {

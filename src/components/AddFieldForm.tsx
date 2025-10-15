@@ -5,14 +5,20 @@ import { useRef, useState, type FormEvent } from 'react';
 import type { fetchTasks } from '../types/interface';
 
 function AddFieldForm({ method, fetchTasks }: { method: HTMLFormMethod } & fetchTasks) {
-    const [error, setError] = useState(false);
+    const [error, setError] = useState<boolean>(false);
+    const [errorText, setErrorText] = useState<string>('');
     const input = useRef<HTMLInputElement>(null)
 
     function checkSubmit(event: FormEvent<HTMLFormElement>) {
-        const userInput = input.current?.value
+        const userInput = input.current?.value.trim() ?? ''
         if (userInput?.trim() === '') {
             event.preventDefault()
             setError(true)
+            setErrorText('Невозможно создать пустую задачу!')
+        } else if (userInput?.length <= 1) {
+            event.preventDefault()
+            setError(true)
+            setErrorText('Минимальное количество символов 2!')
         } else {
             setError(false)
         }
@@ -39,7 +45,7 @@ function AddFieldForm({ method, fetchTasks }: { method: HTMLFormMethod } & fetch
                     <button className={classes.add}>Add</button>
                 </li>
             </ul>
-            {!error ? '' : <p className={classes.error}>Невозможно создать пустую задачу!</p>}
+            {!error ? '' : <p className={classes.error}>{errorText}</p>}
         </Form>
     );
 }
