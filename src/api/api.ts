@@ -1,10 +1,10 @@
 export async function AllLoader () {
-  const response = await fetch('https://easydev.club/api/v1/todos')
-  if (!response.ok) {
-    throw Response.json({ message: 'Could not fetch todos' }, { status: 500 })
-  } else {
+  try {
+    const response = await fetch('https://easydev.club/api/v1/todos')
     const resData = await response.json()
     return resData
+  } catch {
+    throw Response.json({ message: 'Could not fetch todos' }, { status: 500 })
   }
 }
 
@@ -22,15 +22,19 @@ export async function Action ({ request }: { request: Request }) {
       isDone: isDone
     }
 
-    const response = await fetch('https://easydev.club/api/v1/todos', {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
-    })
-
-    checkRespons(response)
+    try {
+      await fetch('https://easydev.club/api/v1/todos', {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(taskData)
+      })
+    } catch {
+      throw new Response(JSON.stringify({ message: 'Could not save task.' }), {
+        status: 500
+      })
+    }
   }
 
   if (method === 'PUT' && data.get('title')) {
@@ -39,15 +43,19 @@ export async function Action ({ request }: { request: Request }) {
       title: data.get('title')
     }
 
-    const response = await fetch(url + tasksId, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
-    })
-
-    checkRespons(response)
+    try {
+      await fetch(url + tasksId, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(taskData)
+      })
+    } catch {
+      throw new Response(JSON.stringify({ message: 'Could not save task.' }), {
+        status: 500
+      })
+    }
   }
 
   if (method === 'PUT' && data.get('isDone')) {
@@ -56,38 +64,31 @@ export async function Action ({ request }: { request: Request }) {
       isDone: JSON.parse(data.get('isDone') as string)
     }
 
-    const response = await fetch(url + tasksId, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
-    })
-
-    checkRespons(response)
+    try {
+      await fetch(url + tasksId, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(taskData)
+      })
+    } catch {
+      throw new Response(JSON.stringify({ message: 'Could not save task.' }), {
+        status: 500
+      })
+    }
   }
 
   if (method === 'DELETE') {
-    const response = await fetch(url + tasksId, {
-      method: method
-    })
-    if (!response.ok) {
+    try {
+      await fetch(url + tasksId, {
+        method: method
+      })
+    } catch {
       throw Response.json(
         { message: 'Could not delete event' },
         { status: 500 }
       )
     }
-  }
-}
-
-function checkRespons (response: Response) {
-  if (response.status === 422) {
-    return response
-  }
-
-  if (!response.ok) {
-    throw new Response(JSON.stringify({ message: 'Could not save task.' }), {
-      status: 500
-    })
   }
 }
