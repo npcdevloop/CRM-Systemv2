@@ -3,45 +3,44 @@ import SaveIcon from '../assets/save.png'
 import EditIcon from '../assets/edit.png'
 import DeleteIcon from '../assets/delete.png'
 import classes from './Task.module.css'
-import type { Todo } from "../interface/interface";
 import { useFetcher } from 'react-router-dom';
 import { useRef, useState } from 'react';
+import type { fetchTasks, Todo } from '../types/interface'
 
-interface RefObject<T> {
-    readonly current: T
-}
 
-function Task({ id, title, created, isDone }: Todo) {
+
+function Task({ id, title, created, isDone, fetchTasks }: Todo & fetchTasks) {
     const fetcher = useFetcher()
     const [edit, setEdit] = useState(false)
     const [error, setError] = useState('')
-    const inputRef = useRef('') as unknown as RefObject<HTMLInputElement>;
+    const inputRef = useRef<HTMLInputElement>(null);
 
     function deleteHandler() {
         fetcher.submit({ 'id': id }, { method: "DELETE" })
+        setTimeout(fetchTasks, 100)
     }
 
     function editHandler() {
         setEdit(true)
     }
 
-    function editCencelHandler() {
+    function editCancelHandler() {
         setEdit(false)
         setError('')
     }
 
     function handleSubmit() {
-
-        const title = inputRef?.current?.value.toString()
-        if (title!.length >= 2 && title!.length <= 64) {
+        const title = inputRef.current?.value ?? ''
+        if (title.trim() === '' || title.length <= 1) {
+            setError("Ошибка сохранения! Минимум 2 символа, максимум 64!")
+        } else if (title.length >= 2 && title.length <= 64) {
             setError('')
             fetcher.submit({
                 'id': id,
                 'title': title
             }, { method: "PUT" })
+            setTimeout(fetchTasks, 100)
             setEdit(false)
-        } else {
-            setError("Ошибка сохранения! Минимум 2 символа, максимум 64!")
         }
     }
 
@@ -51,6 +50,7 @@ function Task({ id, title, created, isDone }: Todo) {
             'title': title,
             'isDone': event.target.checked
         }, { method: "PUT" })
+        setTimeout(fetchTasks, 200)
     }
 
     return (
@@ -81,7 +81,7 @@ function Task({ id, title, created, isDone }: Todo) {
                     <button onClick={!edit ? editHandler : handleSubmit} className={classes.edit}>
                         <img src={!edit ? EditIcon : SaveIcon} alt="edit icon" />
                     </button>
-                    <button onClick={!edit ? deleteHandler : editCencelHandler} className={classes.delete}>
+                    <button onClick={!edit ? deleteHandler : editCancelHandler} className={classes.delete}>
                         <img src={!edit ? DeleteIcon : CancelIcon} alt="delete icon" />
                     </button>
                 </span>
@@ -93,78 +93,3 @@ function Task({ id, title, created, isDone }: Todo) {
 
 export default Task;
 
-
-export async function Action({ request }: { request: Request }) {
-    const data = await request.formData()
-    const method = request.method;
-    const tasksId = data.get('id')
-    let url = 'https://easydev.club/api/v1/todos'
-
-    if (method === 'PUT' && data.get('title')) {
-
-        const taskData = {
-            id: data.get('id'),
-            title: data.get('title'),
-        }
-
-        url = 'https://easydev.club/api/v1/todos/' + tasksId
-
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(taskData),
-        });
-
-        if (response.status === 422) {
-            return response;
-        }
-
-        if (!response.ok) {
-            throw new Response(JSON.stringify({ message: 'Could not save task.' }), {
-                status: 500,
-            });
-
-        }
-    }
-
-    if (method === 'PUT' && data.get('isDone')) {
-
-        const taskData = {
-            id: data.get('id'),
-            isDone: JSON.parse(data.get('isDone') as string),
-        }
-
-        url = 'https://easydev.club/api/v1/todos/' + tasksId
-
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(taskData),
-        });
-
-        if (response.status === 422) {
-            return response;
-        }
-
-        if (!response.ok) {
-            throw new Response(JSON.stringify({ message: 'Could not save task.' }), {
-                status: 500,
-            });
-
-        }
-    }
-
-    if (method === 'DELETE') {
-        url = 'https://easydev.club/api/v1/todos/' + tasksId
-        const response = await fetch(url, {
-            method: method
-        })
-        if (!response.ok) {
-            throw Response.json({ message: "Could not delete event" }, { status: 500 });
-        }
-    }
-}

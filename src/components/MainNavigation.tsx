@@ -1,15 +1,15 @@
 
 import AddFieldForm from "./AddFieldForm"
 import Tab from "../components/Tab"
-import type { TodoInfo } from "../interface/interface";
+import type { fetchTasks, TodoInfo } from "../types/interface";
 import classes from './MainNavigation.module.css';
 
 
-function MainNavigation({ all, completed, inWork }: TodoInfo) {
+function MainNavigation({ all, completed, inWork, fetchTasks }: TodoInfo & fetchTasks) {
   return (
     <>
       <header className={classes.header}>
-        <AddFieldForm method="POST" />
+        <AddFieldForm method="POST" fetchTasks={fetchTasks} />
       </header>
       <Tab all={all} completed={completed} inWork={inWork} />
     </>

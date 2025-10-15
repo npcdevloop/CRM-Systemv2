@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom';
-
 import classes from './Tab.module.css'
-import type { TodoInfo } from '../interface/interface';
+import type { TodoInfo } from '../types/interface';
 
 function Tab({ all, completed, inWork }: TodoInfo) {
     return (

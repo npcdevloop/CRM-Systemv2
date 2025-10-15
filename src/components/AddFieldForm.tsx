@@ -1,12 +1,26 @@
 
 import { Form, type HTMLFormMethod } from 'react-router-dom';
 import classes from './AddFieldForm.module.css'
+import { useRef, useState, type FormEvent } from 'react';
+import type { fetchTasks } from '../types/interface';
 
+function AddFieldForm({ method, fetchTasks }: { method: HTMLFormMethod } & fetchTasks) {
+    const [error, setError] = useState(false);
+    const input = useRef<HTMLInputElement>(null)
 
+    function checkSubmit(event: FormEvent<HTMLFormElement>) {
+        const userInput = input.current?.value
+        if (userInput?.trim() === '') {
+            event.preventDefault()
+            setError(true)
+        } else {
+            setError(false)
+        }
+        setTimeout(fetchTasks, 100)
+    }
 
-function AddFieldForm({ method }: { method: HTMLFormMethod }) {
     return (
-        <Form method={method}>
+        <Form method={method} onSubmit={checkSubmit}>
             <ul className={classes.list}>
                 <li>
                     <input
@@ -17,6 +31,7 @@ function AddFieldForm({ method }: { method: HTMLFormMethod }) {
                         className={classes.search}
                         minLength={2}
                         maxLength={64}
+                        ref={input}
                         required
                     />
                 </li>
@@ -24,6 +39,7 @@ function AddFieldForm({ method }: { method: HTMLFormMethod }) {
                     <button className={classes.add}>Add</button>
                 </li>
             </ul>
+            {!error ? '' : <p className={classes.error}>Невозможно создать пустую задачу!</p>}
         </Form>
     );
 }
@@ -31,28 +47,3 @@ function AddFieldForm({ method }: { method: HTMLFormMethod }) {
 export default AddFieldForm;
 
 
-export async function Action({ request }: { request: Request }) {
-    const data = await request.formData();
-    const eventData = {
-        title: data.get('title'),
-        isDone: data.get('isDone'),
-    }
-
-    const response = await fetch('https://easydev.club/api/v1/todos', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(eventData),
-    });
-
-    if (response.status === 422) {
-        return response;
-    }
-
-    if (!response.ok) {
-        throw new Response(JSON.stringify({ message: 'Could not save task.' }), {
-            status: 500,
-        });
-    }
-}

@@ -5,15 +5,10 @@ export interface TodoRequest {
     }
 }
 
-
-export interface TodosProps {
-    todos: Todo[];
-}
-
 export interface Todo {
     id: number;
     title: string;
-    created: string; 
+    created: string;
     isDone: boolean;
 }
 
@@ -29,4 +24,9 @@ export interface MetaResponse<T, N> {
     meta: {
         totalAmount: number
     }
+}
+
+
+export interface fetchTasks {
+    fetchTasks: () => Promise<void>
 }
