@@ -3,7 +3,7 @@ import SaveIcon from '../assets/save.png'
 import EditIcon from '../assets/edit.png'
 import DeleteIcon from '../assets/delete.png'
 import classes from './Task.module.css'
-import { useFetcher } from 'react-router-dom';
+import { useFetcher, useLocation } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import type { fetchTasks, Todo } from '../types/interface'
 
@@ -11,13 +11,14 @@ import type { fetchTasks, Todo } from '../types/interface'
 
 function Task({ id, title, created, isDone, fetchTasks }: Todo & fetchTasks) {
     const fetcher = useFetcher()
+    const location = useLocation().pathname;
     const [edit, setEdit] = useState(false)
     const [error, setError] = useState('')
     const inputRef = useRef<HTMLInputElement>(null);
 
     function deleteHandler() {
         fetcher.submit({ 'id': id }, { method: "DELETE" })
-        setTimeout(fetchTasks, 100)
+        setTimeout(() => fetchTasks(location.replace('/', '')), 100)
     }
 
     function editHandler() {
@@ -39,7 +40,7 @@ function Task({ id, title, created, isDone, fetchTasks }: Todo & fetchTasks) {
                 'id': id,
                 'title': title
             }, { method: "PUT" })
-            setTimeout(fetchTasks, 100)
+            setTimeout(() => fetchTasks(location.replace('/', '')), 100)
             setEdit(false)
         }
     }
@@ -50,7 +51,7 @@ function Task({ id, title, created, isDone, fetchTasks }: Todo & fetchTasks) {
             'title': title,
             'isDone': event.target.checked
         }, { method: "PUT" })
-        setTimeout(fetchTasks, 200)
+        setTimeout(() => fetchTasks(location.replace('/', '')), 200)
     }
 
     return (
