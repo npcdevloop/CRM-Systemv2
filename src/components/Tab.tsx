@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import classes from './Tab.module.css'
-import type { TodoInfo } from '../types/interface';
+import type { fetchTasks, TodoInfo } from "../types/interface";
 
-function Tab({ all, completed, inWork }: TodoInfo) {
+function Tab({ all, completed, inWork, fetchTasks }: TodoInfo & fetchTasks) {
     return (
         <section className={classes.tabContent}>
             <nav>
@@ -10,17 +10,17 @@ function Tab({ all, completed, inWork }: TodoInfo) {
                     <li>
                         <NavLink to="" className={({ isActive }) =>
                             isActive ? classes.active : undefined
-                        }>Все ({all})</NavLink>
+                        } onClick={() => fetchTasks('all')}>Все ({all})</NavLink>
                     </li>
                     <li>
-                        <NavLink to="inwork" className={({ isActive }) =>
+                        <NavLink to="inWork" className={({ isActive }) =>
                             isActive ? classes.active : undefined
-                        }>В работе ({inWork})</NavLink>
+                        } onClick={() => fetchTasks('inWork')}>В работе ({inWork})</NavLink>
                     </li>
                     <li>
                         <NavLink to="completed" className={({ isActive }) =>
                             isActive ? classes.active : undefined
-                        }>Сделано ({completed})</NavLink>
+                        } onClick={() => fetchTasks('completed')}>Сделано ({completed})</NavLink>
                     </li>
                 </ul>
             </nav>

@@ -28,5 +28,5 @@ export interface MetaResponse<T, N> {
 
 
 export interface fetchTasks {
-    fetchTasks: () => Promise<void>
+    fetchTasks: (filter: string) => Promise<void>
 }

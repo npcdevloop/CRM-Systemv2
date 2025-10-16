@@ -13,7 +13,7 @@ function TodoListPage() {
     async function fetchTasks() {
         setLoading(true)
         try {
-            const tasks = await AllLoader()
+            const tasks = await AllLoader('all')
             setData(tasks)
         } catch (error) {
             setError(error || "Faild to fetch tasks.")
@@ -22,14 +22,15 @@ function TodoListPage() {
         }
     }
 
-    async function updateTasks() {
+    async function updateTasks(filter: string) {
         try {
-            const tasks = await AllLoader()
+            const tasks = await AllLoader(filter)
             setData(tasks)
         } catch (error) {
             setError(error || "Faild to fetch tasks.")
         }
     }
+
 
     useEffect(() => {
         fetchTasks()
@@ -38,10 +39,10 @@ function TodoListPage() {
     return (
         <>
             <MainNavigation
+                fetchTasks={updateTasks}
                 all={data?.info?.all ?? 0}
                 completed={data?.info?.completed ?? 0}
                 inWork={data?.info?.inWork ?? 0}
-                fetchTasks={updateTasks}
             />
 
             {loading && <p style={{ textAlign: "center", marginTop: "20rem" }}>Tasks loading...</p>}

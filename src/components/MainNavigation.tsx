@@ -11,7 +11,7 @@ function MainNavigation({ all, completed, inWork, fetchTasks }: TodoInfo & fetch
       <header className={classes.header}>
         <AddFieldForm method="POST" fetchTasks={fetchTasks} />
       </header>
-      <Tab all={all} completed={completed} inWork={inWork} />
+      <Tab all={all} completed={completed} inWork={inWork} fetchTasks={fetchTasks} />
     </>
   );
 }

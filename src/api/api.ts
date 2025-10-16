@@ -1,6 +1,8 @@
-export async function AllLoader () {
+export async function AllLoader (filter: string) {
   try {
-    const response = await fetch('https://easydev.club/api/v1/todos')
+    const response = await fetch(
+      `https://easydev.club/api/v1/todos?filter=${filter}`
+    )
     const resData = await response.json()
     return resData
   } catch {
