@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { AllLoader } from "../api/api";
 import MainNavigation from "../components/MainNavigation";
 import type { MetaResponse, Todo, TodoInfo } from "../types/interface";
@@ -31,6 +31,13 @@ function TodoListPage() {
         }
     }
 
+    const visibleTodos = useMemo(
+        () => {
+            return data;
+        },
+        [data]
+    );
+
 
     useEffect(() => {
         fetchTasks()
@@ -40,18 +47,19 @@ function TodoListPage() {
         <>
             <MainNavigation
                 fetchTasks={updateTasks}
-                all={data?.info?.all ?? 0}
-                completed={data?.info?.completed ?? 0}
-                inWork={data?.info?.inWork ?? 0}
+                all={visibleTodos?.info?.all ?? 0}
+                completed={visibleTodos?.info?.completed ?? 0}
+                inWork={visibleTodos?.info?.inWork ?? 0}
             />
 
             {loading && <p style={{ textAlign: "center", marginTop: "20rem" }}>Tasks loading...</p>}
             {error && <p style={{ textAlign: "center", marginTop: "20rem" }}>Tasks error...</p>}
 
             <TaskList
-                data={data?.data ?? []}
-                meta={data?.meta ?? { totalAmount: 0 }}
+                data={visibleTodos?.data ?? []}
+                meta={visibleTodos?.meta ?? { totalAmount: 0 }}
                 fetchTasks={updateTasks}
+
             />
         </>
     );
