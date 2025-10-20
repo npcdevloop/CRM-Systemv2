@@ -1,5 +1,5 @@
 
-import { Form, type HTMLFormMethod } from 'react-router-dom';
+import { useLocation, type HTMLFormMethod, useFetcher } from 'react-router-dom';
 import classes from './AddFieldForm.module.css'
 import { useRef, useState, type FormEvent } from 'react';
 import type { fetchTasks } from '../types/interface';
@@ -8,6 +8,8 @@ function AddFieldForm({ method, fetchTasks }: { method: HTMLFormMethod } & fetch
     const [error, setError] = useState<boolean>(false);
     const [errorText, setErrorText] = useState<string>('');
     const input = useRef<HTMLInputElement>(null)
+    const fetcher = useFetcher()
+    const location = useLocation().pathname;
 
     function checkSubmit(event: FormEvent<HTMLFormElement>) {
         const userInput = input.current?.value.trim() ?? ''
@@ -22,11 +24,11 @@ function AddFieldForm({ method, fetchTasks }: { method: HTMLFormMethod } & fetch
         } else {
             setError(false)
         }
-        setTimeout(fetchTasks, 100)
+        setTimeout(() => fetchTasks(location.replace('/', '')), 100)
     }
 
     return (
-        <Form method={method} onSubmit={checkSubmit}>
+        <fetcher.Form method={method} onSubmit={checkSubmit}>
             <ul className={classes.list}>
                 <li>
                     <input
@@ -42,11 +44,11 @@ function AddFieldForm({ method, fetchTasks }: { method: HTMLFormMethod } & fetch
                     />
                 </li>
                 <li>
-                    <button className={classes.add}>Add</button>
+                    <button className={classes.add}>Добавить</button>
                 </li>
             </ul>
             {!error ? '' : <p className={classes.error}>{errorText}</p>}
-        </Form>
+        </fetcher.Form>
     );
 }
 
