@@ -9,6 +9,10 @@
     flex-direction: row;
 }
 
+a {
+    cursor: pointer;
+}
+
 a:hover,
 a.active {
     color: #35A9E1;

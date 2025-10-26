@@ -1,26 +1,27 @@
 import classes from './TaskList.module.css'
-import Task from "./Task";
-import type { MetaResponse, Todo, TodoInfo, fetchTasks } from "../types/interface";
+import Task from "../Tasks/Task";
+import type { MetaResponse, Todo, TodoInfo, updateTasks } from "../../types/interface";
 
 
-function TaskList({ data, meta, fetchTasks }: MetaResponse<Todo, TodoInfo> & fetchTasks) {
 
+function TaskList({ data, meta, updateTasks }: MetaResponse<Todo, TodoInfo> & updateTasks) {
     return (
-        <main className={classes.main}>
+        <ul className={classes.main}>
             {
-                data?.map((todo: Todo) => (
+                data.map((todo: Todo) => (
                     <Task
                         key={todo.id}
                         id={todo.id}
                         title={todo.title}
                         created={todo.created}
                         isDone={todo.isDone}
-                        fetchTasks={fetchTasks}
+                        updateTasks={updateTasks}
                     />
                 ))
+
             }
             <meta name="Общее количество" content={meta.totalAmount.toString()} />
-        </main>
+        </ul>
     );
 }
 

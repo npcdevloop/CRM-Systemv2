@@ -1,8 +1,6 @@
 export interface TodoRequest {
-    request: {
-        title?: string,
-        isDone?: boolean,
-    }
+    title?: string,
+    isDone?: boolean,
 }
 
 export interface Todo {
@@ -26,7 +24,13 @@ export interface MetaResponse<T, N> {
     }
 }
 
+export type Filter = 'all' | 'completed' | 'inWork'
 
-export interface fetchTasks {
-    fetchTasks: (filter: string) => Promise<void>
+export interface updateTasks {
+    updateTasks: () => Promise<MetaResponse<Todo, TodoInfo>> | Promise<void>
+}
+
+export interface setTab {
+    tab: Filter,
+    setTab: (filter: Filter) => void
 }
