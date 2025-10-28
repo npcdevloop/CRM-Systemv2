@@ -3,7 +3,7 @@ import SaveIcon from '../../assets/save.png'
 import EditIcon from '../../assets/edit.png'
 import DeleteIcon from '../../assets/delete.png'
 import classes from './Task.module.css'
-import { useRef, useState } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import type { Todo, updateTasks } from '../../types/interface'
 import { deleteTask, updateTaskByDoneFlag, updateTaskTitle } from '../../api/api'
 
@@ -28,11 +28,11 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
         await updateTasks()
     }
 
-    async function handleSubmit() {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         const title = inputRef.current?.value.trim() ?? ''
 
         if (title.trim() === '' || title.length <= 1) {
-
+            event.preventDefault()
             setError("Ошибка сохранения! Минимум 2 символа, максимум 64!")
 
         } else if (title.length >= 2 && title.length <= 64) {
@@ -79,7 +79,7 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
                         </div>
                     </>
                     :
-                    <form className={classes.formEdit} onSubmit={handleSubmit}>
+                    <form className={classes.formEdit} onSubmit={(e) => handleSubmit(e)}>
                         <input
                             type="text"
                             id='title'
