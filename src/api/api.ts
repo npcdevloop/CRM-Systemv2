@@ -1,4 +1,5 @@
 import type { Filter, MetaResponse, TodoInfo, Todo } from '../types/interface'
+import axios from 'axios'
 
 const baseURL = 'https://easydev.club/api/v1/todos'
 
@@ -6,27 +7,18 @@ export async function loadTasksByFilter (
   filter: Filter
 ): Promise<MetaResponse<Todo, TodoInfo>> {
   try {
-    const response = await fetch(`${baseURL}?filter=${filter}`)
-    const resData = await response.json()
-    return resData
+    const response = await axios.get(`${baseURL}?filter=${filter}`)
+    return response.data
   } catch (error) {
     throw console.log(error)
   }
 }
 
 export async function createTask (title: string) {
-  const taskData = {
-    title: title,
-    isDone: false
-  }
-
   try {
-    await fetch(baseURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
+    await axios.post(baseURL, {
+      title: title,
+      isDone: false
     })
   } catch (error) {
     throw console.log(error)
@@ -34,18 +26,10 @@ export async function createTask (title: string) {
 }
 
 export async function updateTaskTitle (id: number, title: string) {
-  const taskData = {
-    id: id,
-    title: title
-  }
-
   try {
-    await fetch(`${baseURL}/` + id, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
+    await axios.put(`${baseURL}/` + id, {
+      id: id,
+      title: title
     })
   } catch (error) {
     throw console.log(error)
@@ -53,18 +37,10 @@ export async function updateTaskTitle (id: number, title: string) {
 }
 
 export async function updateTaskByDoneFlag (id: number, isDone: boolean) {
-  const taskData = {
-    id: id,
-    isDone: isDone
-  }
-
   try {
-    await fetch(`${baseURL}/` + id, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
+    await axios.put(`${baseURL}/` + id, {
+      id: id,
+      isDone: isDone
     })
   } catch (error) {
     throw console.log(error)
@@ -73,9 +49,7 @@ export async function updateTaskByDoneFlag (id: number, isDone: boolean) {
 
 export async function deleteTask (id: number) {
   try {
-    await fetch(`${baseURL}/` + id, {
-      method: 'DELETE'
-    })
+    await axios.delete(`${baseURL}/` + id)
   } catch (error) {
     throw console.log(error)
   }

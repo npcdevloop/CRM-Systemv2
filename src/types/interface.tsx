@@ -1,3 +1,5 @@
+import type { RefObject } from "react";
+
 export interface TodoRequest {
     title?: string,
     isDone?: boolean,
@@ -31,6 +33,23 @@ export interface updateTasks {
 }
 
 export interface setTab {
-    tab: Filter,
+    tab?: Filter,
     setTab: (filter: Filter) => void
+}
+
+export interface setTimerId {
+    timerId?: number,
+    setTimerId: (timerId: number) => void
+}
+
+export type FieldType = {
+    title: string;
+};
+
+export interface timerId {
+    delay?: number;
+    timerId?: RefObject<number | null>
+    setTimerId?: (timer: number) => void
+    returnTimerId?: () => number | null
+
 }
