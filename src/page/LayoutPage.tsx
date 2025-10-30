@@ -36,7 +36,7 @@ function LayoutPage() {
     const location = useLocation().pathname
     const delay: number = 5000;
     const timerId = useRef<ReturnType<typeof setInterval> | null>(null);
-    console.log(location)
+
     function handleSubmit({ key }: MenuInfo) {
         navigate(key)
     }
