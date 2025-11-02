@@ -23,9 +23,16 @@ function TodoListPage() {
     const [error, setError] = useState<string | unknown>()
 
     useEffect(() => {
-        setLoading(true)
-        updateTasks()
-        setLoading(false)
+        const updateDataTasks = async () => {
+            try {
+                setLoading(true)
+                await updateTasks()
+                setLoading(false)
+            } catch (error) {
+                setError(error)
+            }
+        }
+        updateDataTasks()
     }, [tab])
 
     async function updateTasks() {

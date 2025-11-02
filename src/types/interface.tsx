@@ -1,3 +1,5 @@
+import type { FormEvent } from "react";
+
 export interface TodoRequest {
     title?: string,
     isDone?: boolean,
@@ -33,4 +35,15 @@ export interface updateTasks {
 export interface setTab {
     tab: Filter,
     setTab: (filter: Filter) => void
+}
+
+export interface validationTaskParams {
+    event: FormEvent<HTMLFormElement>
+    title: string
+    setErrorText: (error: string) => void
+    updateTasks: () => Promise<MetaResponse<Todo, TodoInfo>> | Promise<void>
+    createTask?: (title: string) => Promise<void>
+    updateTaskTitle?: (id: number, title: string) => Promise<void>
+    setEdit?: (editState: boolean) => void
+    id?: number
 }

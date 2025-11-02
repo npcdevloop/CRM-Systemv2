@@ -6,12 +6,13 @@ import classes from './Task.module.css'
 import { useRef, useState, type FormEvent } from 'react';
 import type { Todo, updateTasks } from '../../types/interface'
 import { deleteTask, updateTaskByDoneFlag, updateTaskTitle } from '../../api/api'
+import { validationTask } from '../../utils/validationTask'
 
 
 
 function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
     const [edit, setEdit] = useState(false)
-    const [error, setError] = useState('')
+    const [errorText, setErrorText] = useState('')
     const inputRef = useRef<HTMLInputElement>(null);
 
     function activeEditHandler() {
@@ -20,7 +21,7 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
 
     function cancelEditHandler() {
         setEdit(false)
-        setError('')
+        setErrorText('')
     }
 
     async function deleteHandler() {
@@ -30,19 +31,15 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         const title = inputRef.current?.value.trim() ?? ''
-
-        if (title.trim() === '' || title.length <= 1) {
-            event.preventDefault()
-            setError("Ошибка сохранения! Минимум 2 символа, максимум 64!")
-
-        } else if (title.length >= 2 && title.length <= 64) {
-            setError('')
-
-            await updateTaskTitle(id, title)
-            await updateTasks()
-
-            setEdit(false)
-        }
+        await validationTask({
+            event,
+            title,
+            setErrorText,
+            updateTasks,
+            updateTaskTitle,
+            setEdit,
+            id
+        })
     }
 
     async function handleChecked(event: { target: { checked: boolean; }; }) {
@@ -52,7 +49,7 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
 
     return (
         <>
-            {!error ? '' : <p className={classes.error}>{error}</p>}
+            {!errorText ? '' : <p className={classes.error}>{errorText}</p>}
 
             <li key={id} className={classes.taskContent}>
 

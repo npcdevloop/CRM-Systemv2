@@ -5,7 +5,7 @@ import type { TodoInfo, Filter, setTab } from "../../types/interface";
 
 function Tabs({ all, completed, inWork, tab, setTab }: TodoInfo & setTab) {
 
-    function toggleTab(filter: Filter) {
+    function selectTab(filter: Filter) {
         setTab(filter);
 
     }
@@ -17,21 +17,21 @@ function Tabs({ all, completed, inWork, tab, setTab }: TodoInfo & setTab) {
                     <li>
                         <a
                             className={(tab === 'all') ? classes.active : ''}
-                            onClick={() => { toggleTab('all') }}>
+                            onClick={() => { selectTab('all') }}>
                             Все ({all})
                         </a>
                     </li>
                     <li>
                         <a
                             className={(tab === 'inWork') ? classes.active : ''}
-                            onClick={() => { toggleTab('inWork') }}>
+                            onClick={() => { selectTab('inWork') }}>
                             В работе ({inWork})
                         </a>
                     </li>
                     <li>
                         <a
                             className={(tab === 'completed') ? classes.active : ''}
-                            onClick={() => { toggleTab('completed') }}>
+                            onClick={() => { selectTab('completed') }}>
                             Сделано ({completed})
                         </a>
                     </li>
