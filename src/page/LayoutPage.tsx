@@ -38,16 +38,13 @@ function LayoutPage() {
     const timerId = useRef<ReturnType<typeof setInterval> | null>(null);
 
     function handleSubmit({ key }: MenuInfo) {
+        if (key === '/profile') { clearInterval(timerId.current!) }
         navigate(key)
     }
 
     function setTimerId(timer: number) {
+        clearInterval(timerId.current!)
         timerId.current = timer
-    }
-
-    function returnTimerId() {
-        const timer = timerId.current
-        return timer
     }
 
     return (
@@ -61,9 +58,9 @@ function LayoutPage() {
                     {
                         location === '/'
                             ?
-                            <TodoListPage delay={delay} setTimerId={setTimerId} returnTimerId={returnTimerId} />
+                            <TodoListPage delay={delay} setTimerId={setTimerId} />
                             :
-                            <ProfilePage returnTimerId={returnTimerId} setTimerId={setTimerId} />
+                            <ProfilePage />
                     }
                 </Content>
             </Layout>

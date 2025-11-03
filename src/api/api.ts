@@ -1,56 +1,94 @@
 import type { Filter, MetaResponse, TodoInfo, Todo } from '../types/interface'
 import axios from 'axios'
 
-const baseURL = 'https://easydev.club/api/v1/todos'
+const axiosInstance = axios.create({
+  baseURL: 'https://easydev.club/api/v1/todos'
+})
+
+axiosInstance.interceptors.request.use(config => {
+  if (config.method === 'put' || config.method === 'delete') {
+    config.baseURL = `${config.baseURL}/${config.params.id}`
+    delete config.params
+    return config
+  } else {
+    return config
+  }
+})
 
 export async function loadTasksByFilter (
   filter: Filter
 ): Promise<MetaResponse<Todo, TodoInfo>> {
-  try {
-    const response = await axios.get(`${baseURL}?filter=${filter}`)
-    return response.data
-  } catch (error) {
-    throw console.log(error)
-  }
+  return axiosInstance
+    .get('', {
+      params: {
+        filter: filter
+      }
+    })
+    .then(response => {
+      return response.data
+    })
+    .catch(error => {
+      throw console.error(error)
+    })
 }
 
-export async function createTask (title: string) {
-  try {
-    await axios.post(baseURL, {
+export async function createTask (title: string): Promise<void> {
+  await axiosInstance
+    .post('', {
       title: title,
       isDone: false
     })
-  } catch (error) {
-    throw console.log(error)
-  }
+    .catch(error => {
+      throw console.error(error)
+    })
 }
 
 export async function updateTaskTitle (id: number, title: string) {
-  try {
-    await axios.put(`${baseURL}/` + id, {
-      id: id,
-      title: title
+  await axiosInstance
+    .put(
+      ``,
+      {
+        id,
+        title
+      },
+      {
+        params: {
+          id
+        }
+      }
+    )
+    .catch(error => {
+      throw console.error(error)
     })
-  } catch (error) {
-    throw console.log(error)
-  }
 }
 
 export async function updateTaskByDoneFlag (id: number, isDone: boolean) {
-  try {
-    await axios.put(`${baseURL}/` + id, {
-      id: id,
-      isDone: isDone
+  await axiosInstance
+    .put(
+      ``,
+      {
+        id,
+        isDone
+      },
+      {
+        params: {
+          id
+        }
+      }
+    )
+    .catch(error => {
+      throw console.error(error)
     })
-  } catch (error) {
-    throw console.log(error)
-  }
 }
 
 export async function deleteTask (id: number) {
-  try {
-    await axios.delete(`${baseURL}/` + id)
-  } catch (error) {
-    throw console.log(error)
-  }
+  await axiosInstance
+    .delete(``, {
+      params: {
+        id
+      }
+    })
+    .catch(error => {
+      throw console.error(error)
+    })
 }

@@ -1,7 +1,7 @@
-import type { timerId } from "../types/interface";
 
-function ProfilePage({ returnTimerId }: timerId) {
-    clearTimeout(returnTimerId!() ?? 0)
+
+function ProfilePage() {
+
     return (<>
         <h1>Привет</h1>
     </>);

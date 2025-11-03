@@ -50,6 +50,5 @@ export interface timerId {
     delay?: number;
     timerId?: RefObject<number | null>
     setTimerId?: (timer: number) => void
-    returnTimerId?: () => number | null
-
 }
+

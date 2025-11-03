@@ -2,8 +2,9 @@ import { Button, Input, Flex, Form } from 'antd';
 import type { FormProps } from 'antd';
 import type { updateTasks, FieldType } from '../types/interface';
 import { createTask } from '../api/api';
+import { memo } from 'react';
 
-function AddFieldForm({ updateTasks }: updateTasks) {
+const AddFieldForm = memo(function AddFieldForm({ updateTasks }: updateTasks) {
 
     const onFinish: FormProps<FieldType>['onFinish'] = async ({ title }) => {
         await createTask(title)
@@ -51,7 +52,7 @@ function AddFieldForm({ updateTasks }: updateTasks) {
         </Form>
     );
 }
-
+)
 export default AddFieldForm;
 
 
