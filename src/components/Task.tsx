@@ -1,48 +1,67 @@
 import { useState } from 'react';
-import type { updateTasks, Todo, FieldType } from '../types/interface'
+import type { Todo, MetaResponse, TodoInfo } from '../types/interface'
 import { Button, List, Checkbox, Input, Form, Typography, type FormProps, Flex } from 'antd'
 import { CloseOutlined, DeleteOutlined, FormOutlined, SaveOutlined } from '@ant-design/icons'
-import { deleteTask, updateTaskByDoneFlag, updateTaskTitle } from '../api/api';
+import { deleteTask, updateTaskState } from '../api/api';
 
+interface updateTasks {
+    updateTasks: () => Promise<MetaResponse<Todo, TodoInfo>> | Promise<void>
+}
 
+type FieldType = {
+    title: string;
+};
 
 function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
-    const [edit, setEdit] = useState(false)
+    const [edit, setEdit] = useState<boolean>(false)
     const { Text } = Typography;
 
-    function activeEditHandler() {
+    function onActiveEditStateTask() {
         setEdit(true)
     }
 
-    function cancelEditHandler() {
+    function onCancelEditStateTask() {
         setEdit(false)
     }
 
-    async function deleteHandler() {
-        await deleteTask(id)
-        await updateTasks()
+    async function onDeleteTask() {
+        try {
+            await deleteTask(id)
+            await updateTasks()
+        } catch (error) {
+            throw new Error(`Ошибка при удалении задачи:\n${error}`)
+        }
+
     }
 
-    const handleSubmit: FormProps<FieldType>['onFinish'] = async ({ title }) => {
-        await updateTaskTitle(id, title)
-        await updateTasks()
-        setEdit(false)
+    const onSaveEditTask: FormProps<FieldType>['onFinish'] = async ({ title }) => {
+        try {
+            await updateTaskState(id, title)
+            await updateTasks()
+            setEdit(false)
+        } catch (error) {
+            throw new Error(`Ошибка при обновлении заголовка задачи:\n${error}`)
+        }
     };
 
-    async function handleChecked(event: { target: { checked: boolean; }; }) {
-        await updateTaskByDoneFlag(id, event.target.checked)
-        await updateTasks()
+    async function onCompletedTask(event: { target: { checked: boolean; }; }) {
+        try {
+            await updateTaskState(id, event.target.checked)
+            await updateTasks()
+        } catch (error) {
+            throw new Error(`Ошибка при обновлении готовности задачи:\n${error}`)
+        }
     }
 
     return (
         <List.Item key={id}>
 
-            <Checkbox onChange={handleChecked} checked={isDone} />
+            <Checkbox onChange={onCompletedTask} checked={isDone} />
 
             {edit ?
                 <Form
                     name="titleEdit"
-                    onFinish={handleSubmit}
+                    onFinish={onSaveEditTask}
                     style={{ width: '100%' }}
                 >
                     <Flex align='center' justify='space-between'>
@@ -70,10 +89,10 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
 
                         <Form.Item style={{ marginBottom: 0 }}>
                             <Flex gap='small' >
-                                <Button type="primary" htmlType='submit' onClick={() => handleSubmit}>
+                                <Button type="primary" htmlType='submit'>
                                     <SaveOutlined />
                                 </Button>
-                                <Button type="primary" danger onClick={cancelEditHandler}>
+                                <Button type="primary" danger onClick={onCancelEditStateTask}>
                                     <CloseOutlined />
                                 </Button>
                             </Flex>
@@ -85,10 +104,10 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
                 <>
                     <Text strong>{title}</Text>
                     <Flex gap="small">
-                        <Button type="primary" onClick={activeEditHandler}>
+                        <Button type="primary" onClick={onActiveEditStateTask}>
                             <FormOutlined />
                         </Button>
-                        <Button type="primary" danger onClick={deleteHandler}>
+                        <Button type="primary" danger onClick={onDeleteTask}>
                             <DeleteOutlined />
                         </Button>
                     </Flex>

@@ -1,11 +1,17 @@
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type RefObject } from "react";
 import { loadTasksByFilter } from "../api/api";
-import type { Filter, MetaResponse, Todo, TodoInfo, timerId } from "../types/interface";
+import type { Filter, MetaResponse, Todo, TodoInfo } from "../types/interface";
 import TaskList from "../components/TaskList";
 import { Alert, Flex, Spin } from "antd";
 import AddFieldForm from "../components/AddFieldForm";
 import Tabs from "../components/Tabs";
+
+export interface timerId {
+    delay?: number;
+    timerId?: RefObject<number | null>
+    setTimerId?: (timer: number) => void
+}
 
 function TodoListPage({ delay, setTimerId }: timerId) {
     const [data, setData] = useState<MetaResponse<Todo, TodoInfo>>({

@@ -1,11 +1,16 @@
 import { Tabs } from "antd";
 import type { TabsProps } from 'antd';
-import type { Filter, setTab, TodoInfo } from '../types/interface';
+import type { Filter, TodoInfo } from '../types/interface';
 import { memo } from "react";
+
+interface setTab {
+    tab?: Filter,
+    setTab: (filter: Filter) => void
+}
 
 const Tab = memo(function Tab({ all, completed, inWork, setTab }: TodoInfo & setTab) {
 
-    const onChange = (key: string) => {
+    const onChangeActiveTab = (key: string) => {
         setTab(key as Filter)
     };
 
@@ -27,7 +32,7 @@ const Tab = memo(function Tab({ all, completed, inWork, setTab }: TodoInfo & set
 
 
     return (
-        <Tabs defaultActiveKey="all" items={items} onChange={onChange} centered={true} size="large" />
+        <Tabs defaultActiveKey="all" items={items} onChange={onChangeActiveTab} centered={true} size="large" />
     );
 }
 )

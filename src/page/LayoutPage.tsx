@@ -31,13 +31,13 @@ const items: MenuItem[] = [
 ];
 
 function LayoutPage() {
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState<boolean>(false);
     const navigate = useNavigate();
     const location = useLocation().pathname
     const delay: number = 5000;
     const timerId = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    function handleSubmit({ key }: MenuInfo) {
+    function onSelectItemMenu({ key }: MenuInfo) {
         if (key === '/profile') { clearInterval(timerId.current!) }
         navigate(key)
     }
@@ -51,7 +51,7 @@ function LayoutPage() {
         <Layout style={{ minHeight: '100vh' }}>
             <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                 <div className="demo-logo-vertical" />
-                <Menu theme="dark" defaultSelectedKeys={location !== '/' ? [location] : ['/']} mode="inline" items={items} onClick={handleSubmit} />
+                <Menu theme="dark" defaultSelectedKeys={location !== '/' ? [location] : ['/']} mode="inline" items={items} onClick={onSelectItemMenu} />
             </Sider>
             <Layout>
                 <Content style={{ margin: '1rem' }}>

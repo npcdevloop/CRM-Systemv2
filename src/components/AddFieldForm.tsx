@@ -1,14 +1,27 @@
 import { Button, Input, Flex, Form } from 'antd';
 import type { FormProps } from 'antd';
-import type { updateTasks, FieldType } from '../types/interface';
 import { createTask } from '../api/api';
 import { memo } from 'react';
+import type { MetaResponse, Todo, TodoInfo } from '../types/interface';
+
+type FieldType = {
+    title: string;
+};
+
+interface updateTasks {
+    updateTasks: () => Promise<MetaResponse<Todo, TodoInfo>> | Promise<void>
+}
+
 
 const AddFieldForm = memo(function AddFieldForm({ updateTasks }: updateTasks) {
 
     const onFinish: FormProps<FieldType>['onFinish'] = async ({ title }) => {
-        await createTask(title)
-        await updateTasks()
+        try {
+            await createTask(title)
+            await updateTasks()
+        } catch (error) {
+            throw new Error(`Ошибка при создании задач:\n${error}`)
+        }
     };
 
     return (

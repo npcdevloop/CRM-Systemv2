@@ -1,7 +1,10 @@
 import Task from "./Task";
-import type { MetaResponse, Todo, TodoInfo, updateTasks } from "../types/interface";
+import type { MetaResponse, Todo, TodoInfo } from "../types/interface";
 import { List } from 'antd';
 
+interface updateTasks {
+    updateTasks: () => Promise<MetaResponse<Todo, TodoInfo>> | Promise<void>
+}
 
 function TaskList({ data, meta, updateTasks }: MetaResponse<Todo, TodoInfo> & updateTasks) {
 
