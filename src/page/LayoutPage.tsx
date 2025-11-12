@@ -9,7 +9,7 @@ import type { MenuInfo } from "rc-menu/lib/interface";
 const { Content, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
-function getItem(
+function createItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
@@ -24,14 +24,14 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-  getItem('Список задач', '/', <UnorderedListOutlined />),
-  getItem('Профиль', '/profile', <UserOutlined />),
+  createItem('Список задач', '/', <UnorderedListOutlined />),
+  createItem('Профиль', '/profile', <UserOutlined />),
 ];
 
 function LayoutPage() {
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const navigate = useNavigate();
-  const location = useLocation().pathname
+  const { pathname } = useLocation()
 
   function onSelectItemMenu({ key }: MenuInfo) {
     navigate(key)
@@ -41,7 +41,7 @@ function LayoutPage() {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
         <div className="demo-logo-vertical" />
-        <Menu theme="dark" defaultSelectedKeys={location !== '/' ? [location] : ['/']} mode="inline" items={items} onClick={onSelectItemMenu} />
+        <Menu theme="dark" defaultSelectedKeys={pathname !== '/' ? [pathname] : ['/']} mode="inline" items={items} onClick={onSelectItemMenu} />
       </Sider>
       <Layout>
         <Content style={{ margin: '1rem' }}>

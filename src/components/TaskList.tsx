@@ -2,11 +2,11 @@ import Task from "./Task";
 import type { MetaResponse, Todo, TodoInfo } from "../types/interface";
 import { List } from 'antd';
 
-interface updateTasks {
-  updateTasks: () => Promise<MetaResponse<Todo, TodoInfo>> | Promise<void>
+interface Props {
+  updateTasks: () => void
 }
 
-function TaskList({ data, meta, updateTasks }: MetaResponse<Todo, TodoInfo> & updateTasks) {
+function TaskList({ data, meta, updateTasks }: MetaResponse<Todo, TodoInfo> & Props) {
 
   return (
     <>
@@ -15,13 +15,9 @@ function TaskList({ data, meta, updateTasks }: MetaResponse<Todo, TodoInfo> & up
         itemLayout="horizontal"
         dataSource={data}
         renderItem={
-          (data) => (
+          (todo) => (
             <Task
-              key={data.id}
-              id={data.id}
-              title={data.title}
-              created={data.created}
-              isDone={data.isDone}
+              todo={todo}
               updateTasks={updateTasks}
             />
           )

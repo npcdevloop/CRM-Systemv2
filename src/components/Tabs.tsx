@@ -1,21 +1,26 @@
 import { Tabs } from "antd";
 import type { TabsProps } from 'antd';
-import type { Filter, TodoInfo } from '../types/interface';
+import type { TodoInfo } from '../types/interface';
 import { memo } from "react";
 
-interface setTab {
+const filter = ['all', 'completed', 'inWork'] as const;
+type Filter = (typeof filter)[number];
+
+interface SetTab {
   tab?: Filter,
   setTab: (filter: Filter) => void
 }
 
-function isFilter(key: string | Filter): key is Filter {
-  return (key as Filter) !== undefined
+function isFilter(key: any): key is Filter {
+  return filter.includes(key);
 }
 
-const Tab = memo(function Tab({ all, completed, inWork, setTab }: TodoInfo & setTab) {
+const Tab = memo(function Tab({ all, completed, inWork, setTab }: TodoInfo & SetTab) {
 
-  const onChangeActiveTab = (key: string | Filter) => {
-    if (isFilter(key)) setTab(key)
+  const onChangeActiveTab = (key: string) => {
+    if (isFilter(key)) {
+      setTab(key)
+    }
   };
 
   const items: TabsProps['items'] = [

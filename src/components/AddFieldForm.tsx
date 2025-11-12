@@ -1,29 +1,42 @@
-import { Button, Input, Flex, Form } from 'antd';
+import { Button, Input, Flex, Form, notification } from 'antd';
 import type { FormProps } from 'antd';
 import { createTask } from '../api/api';
 import { memo } from 'react';
+
+type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 type FieldType = {
   title: string;
 };
 
-interface props {
+interface Props {
   updateTasks: () => void
 }
 
+const AddFieldForm = memo(function AddFieldForm({ updateTasks }: Props) {
 
-const AddFieldForm = memo(function AddFieldForm({ updateTasks }: props) {
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
+    api[type]({
+      message: 'Ошибка!',
+      description:
+        `${error}`,
+    });
+  };
 
   const onFinish: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
       await createTask(title)
       await updateTasks()
     } catch (error) {
-      throw new Error(`Ошибка при создании задач:\n${error}`)
+      openNotificationWithIcon('error', error)
+      throw new Error(`Ошибка при создании задачи:\n${error}`)
     }
   };
 
   return (
+
     <Form
       method={"POST"}
       name="title"
@@ -31,6 +44,7 @@ const AddFieldForm = memo(function AddFieldForm({ updateTasks }: props) {
       variant="underlined"
       style={{ width: "100%", marginBottom: 0 }}
     >
+      {contextHolder}
       <Flex align='center' justify="center" gap='middle'>
         <Form.Item<FieldType >
           style={{ width: "100%", marginBottom: 0 }}
@@ -56,7 +70,8 @@ const AddFieldForm = memo(function AddFieldForm({ updateTasks }: props) {
             style={{
               width: "7rem",
               height: "2.5rem"
-            }}>
+            }}
+          >
             Добавить
           </Button>
         </Form.Item>

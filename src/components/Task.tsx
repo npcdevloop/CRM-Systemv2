@@ -1,20 +1,33 @@
 import { useState } from 'react';
-import type { Todo, MetaResponse, TodoInfo } from '../types/interface'
-import { Button, List, Checkbox, Input, Form, Typography, type FormProps, Flex } from 'antd'
+import type { Todo } from '../types/interface'
+import { Button, List, Checkbox, Input, Form, Typography, type FormProps, Flex, notification } from 'antd'
 import { CloseOutlined, DeleteOutlined, FormOutlined, SaveOutlined } from '@ant-design/icons'
 import { deleteTask, updateTaskState } from '../api/api';
 
-interface updateTasks {
-  updateTasks: () => Promise<MetaResponse<Todo, TodoInfo>> | Promise<void>
+type NotificationType = 'success' | 'info' | 'warning' | 'error';
+
+interface Props {
+  updateTasks: () => void,
+  todo: Todo
 }
 
 type FieldType = {
   title: string;
 };
 
-function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
+function Task({ todo, updateTasks }: Props) {
+  const { id, title, created, isDone } = todo
   const [edit, setEdit] = useState<boolean>(false)
   const { Text } = Typography;
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
+    api[type]({
+      message: 'Ошибка!',
+      description:
+        `${error}`,
+    });
+  };
 
   function onActiveEditStateTask() {
     setEdit(true)
@@ -26,10 +39,10 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
 
   async function onDeleteTask() {
     try {
-
       await deleteTask(id)
       await updateTasks()
     } catch (error) {
+      openNotificationWithIcon('error', error)
       throw new Error(`Ошибка при удалении задачи:\n${error}`)
     }
 
@@ -41,6 +54,7 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
       await updateTasks()
       setEdit(false)
     } catch (error) {
+      openNotificationWithIcon('error', error)
       throw new Error(`Ошибка при обновлении заголовка задачи:\n${error}`)
     }
   };
@@ -50,13 +64,14 @@ function Task({ id, title, created, isDone, updateTasks }: Todo & updateTasks) {
       await updateTaskState(id, { isDone: event.target.checked })
       await updateTasks()
     } catch (error) {
+      openNotificationWithIcon('error', error)
       throw new Error(`Ошибка при обновлении готовности задачи:\n${error}`)
     }
   }
 
   return (
     <List.Item key={id}>
-
+      {contextHolder}
       <Checkbox onChange={onCompletedTask} checked={isDone} />
 
       {edit ?
