@@ -1,82 +1,60 @@
-import type { Filter, MetaResponse, TodoInfo, Todo } from '../types/interface'
+import type {
+  Filter,
+  MetaResponse,
+  TodoInfo,
+  Todo,
+  TodoRequest,
+} from "../types/interface";
+import axios from "axios";
 
-const baseURL = 'https://easydev.club/api/v1/todos'
+const axiosInstance = axios.create({
+  baseURL: "https://easydev.club/api/v1",
+});
 
-export async function loadTasksByFilter (
+export async function loadTasksByFilter(
   filter: Filter
 ): Promise<MetaResponse<Todo, TodoInfo>> {
-  try {
-    const response = await fetch(`${baseURL}?filter=${filter}`)
-    const resData = await response.json()
-    return resData
-  } catch (error) {
-    throw console.log(error)
-  }
-}
-
-export async function createTask (title: string) {
-  const taskData = {
-    title: title,
-    isDone: false
-  }
-
-  try {
-    await fetch(baseURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+  return await axiosInstance
+    .get("/todos", {
+      params: {
+        filter: filter,
       },
-      body: JSON.stringify(taskData)
     })
-  } catch (error) {
-    throw console.log(error)
-  }
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      throw new Error(`Ошибка при фильтрации задач:\n${error}`);
+    });
 }
 
-export async function updateTaskTitle (id: number, title: string) {
-  const taskData = {
-    id: id,
-    title: title
-  }
-
-  try {
-    await fetch(`${baseURL}/` + id, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
+export async function createTask(title: string): Promise<void> {
+  await axiosInstance
+    .post("/todos", {
+      title: title,
+      isDone: false,
     })
-  } catch (error) {
-    throw console.log(error)
-  }
+    .catch((error) => {
+      throw new Error(`Ошибка при создании задачи:\n${error}`);
+    });
 }
 
-export async function updateTaskByDoneFlag (id: number, isDone: boolean) {
-  const taskData = {
-    id: id,
-    isDone: isDone
-  }
-
-  try {
-    await fetch(`${baseURL}/` + id, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(taskData)
+export async function updateTaskState(
+  id: number,
+  { title, isDone }: TodoRequest
+): Promise<void> {
+  await axiosInstance
+    .put(`/todos/${id}`, {
+      title,
+      isDone,
     })
-  } catch (error) {
-    throw console.log(error)
-  }
+    .catch((error) => {
+      throw new Error(`Ошибка при обновлении состояния задачи:\n${error}`);
+    });
 }
 
-export async function deleteTask (id: number) {
-  try {
-    await fetch(`${baseURL}/` + id, {
-      method: 'DELETE'
-    })
-  } catch (error) {
-    throw console.log(error)
-  }
+export async function deleteTask(id: number): Promise<void> {
+  await axiosInstance.delete(`/todos/${id}`).catch((error) => {
+    throw new Error(`Ошибка при удалении задачи:\n${error}`);
+  });
 }
