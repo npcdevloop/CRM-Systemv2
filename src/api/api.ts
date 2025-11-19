@@ -44,31 +44,17 @@ export async function updateTaskState(
   { title, isDone }: TodoRequest
 ): Promise<void> {
   await axiosInstance
-    .put(
-      `/todos/${id}`,
-      {
-        title,
-        isDone,
-      },
-      {
-        params: {
-          id,
-        },
-      }
-    )
+    .put(`/todos/${id}`, {
+      title,
+      isDone,
+    })
     .catch((error) => {
       throw new Error(`Ошибка при обновлении состояния задачи:\n${error}`);
     });
 }
 
 export async function deleteTask(id: number): Promise<void> {
-  await axiosInstance
-    .delete(`/todos/${id}`, {
-      params: {
-        id,
-      },
-    })
-    .catch((error) => {
-      throw new Error(`Ошибка при удалении задачи:\n${error}`);
-    });
+  await axiosInstance.delete(`/todos/${id}`).catch((error) => {
+    throw new Error(`Ошибка при удалении задачи:\n${error}`);
+  });
 }

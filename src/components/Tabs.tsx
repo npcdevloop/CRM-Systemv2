@@ -1,17 +1,16 @@
 import { Tabs } from "antd";
 import type { TabsProps } from 'antd';
-import type { TodoInfo } from '../types/interface';
+import type { Filter, TodoInfo } from '../types/interface';
 import { memo } from "react";
 
-const filter = ['all', 'completed', 'inWork'] as const;
-type Filter = (typeof filter)[number];
 
 interface SetTab {
   tab?: Filter,
   setTab: (filter: Filter) => void
 }
 
-function isFilter(key: any): key is Filter {
+function isFilter(key: unknown): key is Filter {
+  const filter = ['all', 'completed', 'inWork'] as const;
   return filter.includes(key);
 }
 
