@@ -1,10 +1,10 @@
-# Todo (React+TS+Antd+Axios) Release/0.1.0
+# Todo (React+TS+Antd+Axios)
 
 ### Запуск
 
 ```bash
-git clone -b release/0.1.0 https://github.com/npcdevloop/CRM-Systemv2.git
-cd CRM-Systemv2
+git clone -b feature_branch https://github.com/npcdevloop/CRM-System.git
+cd CRM-System
 npm install
 npm run dev
 ```
