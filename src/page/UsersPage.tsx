@@ -51,7 +51,7 @@ const columns: TableProps<Users>['columns'] = [
     render: (_, { roles }) => (
       <>
         {roles.map((role) => {
-          let color = role.length > 5 ? 'geekblue' : 'green';
+          const color = role.length > 5 ? 'geekblue' : 'green';
           return (
             <Tag color={color} key={role}>
               {role.toUpperCase()}

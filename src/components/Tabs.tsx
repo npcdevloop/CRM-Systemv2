@@ -11,7 +11,12 @@ interface SetTab {
 
 function isFilter(key: unknown): key is Filter {
   const filter = ['all', 'completed', 'inWork'] as const;
-  return filter.includes(key);
+
+  if (typeof key !== 'string') {
+    return false;
+  }
+
+  return (filter as readonly string[]).includes(key);;
 }
 
 const Tab = memo(function Tab({ all, completed, inWork, setTab }: TodoInfo & SetTab) {
