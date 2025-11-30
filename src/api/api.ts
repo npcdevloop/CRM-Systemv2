@@ -17,7 +17,6 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(async (config) => {
   const state = await store.getState();
   const accessToken = state.auth.token;
-  console.log(config);
   if (config.url === "/auth/signin") {
     return config;
   }
@@ -138,7 +137,6 @@ export async function registrationUser(
   phoneNumber: string,
   username: string
 ): Promise<void> {
-  console.log(email, login, password, phoneNumber, username);
   await axiosInstance
     .post("/auth/signup", {
       email,
