@@ -6,10 +6,68 @@ import type {
   TodoRequest,
 } from "../types/interface";
 import axios from "axios";
+import store from "../store/index";
+import { logOut, setToken } from "../store/auth-slice";
+import type { Profile, Token } from "../types/interface_user";
 
 const axiosInstance = axios.create({
   baseURL: "https://easydev.club/api/v1",
 });
+
+axiosInstance.interceptors.request.use(async (config) => {
+  const state = await store.getState();
+  const accessToken = state.auth.token;
+  console.log(config);
+  if (config.url === "/auth/signin") {
+    return config;
+  }
+  if (config.url === "/todos" && !accessToken) {
+    window.location.href = "/auth";
+  }
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+    return config;
+  } else {
+    return config;
+  }
+});
+
+let isRefreshResponse = false;
+
+axiosInstance.interceptors.response.use(
+  (config) => {
+    return config;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response.status == 401 && error.config.url === "/auth/refresh") {
+      throw Error("Токен обновления истек!");
+    }
+
+    if (error.response.status == 401 && error.config && !isRefreshResponse) {
+      isRefreshResponse = true;
+      try {
+        const refreshTokenItem = localStorage.getItem("refreshToken");
+        const { accessToken, refreshToken } = await refreshAccessToken(
+          refreshTokenItem
+        );
+        localStorage.setItem("refreshToken", refreshToken);
+        store.dispatch(setToken(accessToken));
+        return axiosInstance.request(originalRequest);
+      } catch (error) {
+        localStorage.removeItem("refreshToken");
+        store.dispatch(logOut());
+        window.location.href = "/auth";
+        throw new Error(`Не удалось авторизовать пользователя: ${error}`);
+      } finally {
+        isRefreshResponse = false;
+      }
+    }
+    throw error;
+  }
+);
 
 export async function loadTasksByFilter(
   filter: Filter
@@ -44,17 +102,101 @@ export async function updateTaskState(
   { title, isDone }: TodoRequest
 ): Promise<void> {
   await axiosInstance
-    .put(`/todos/${id}`, {
-      title,
-      isDone,
-    })
+    .put(
+      `/todos/${id}`,
+      {
+        title,
+        isDone,
+      },
+      {
+        params: {
+          id,
+        },
+      }
+    )
     .catch((error) => {
       throw new Error(`Ошибка при обновлении состояния задачи:\n${error}`);
     });
 }
 
 export async function deleteTask(id: number): Promise<void> {
-  await axiosInstance.delete(`/todos/${id}`).catch((error) => {
-    throw new Error(`Ошибка при удалении задачи:\n${error}`);
+  await axiosInstance
+    .delete(`/todos/${id}`, {
+      params: {
+        id,
+      },
+    })
+    .catch((error) => {
+      throw new Error(`Ошибка при удалении задачи:\n${error}`);
+    });
+}
+
+export async function registrationUser(
+  email: string,
+  login: string,
+  password: string,
+  phoneNumber: string,
+  username: string
+): Promise<void> {
+  console.log(email, login, password, phoneNumber, username);
+  await axiosInstance
+    .post("/auth/signup", {
+      email,
+      login,
+      password,
+      phoneNumber,
+      username,
+    })
+    .catch((error) => {
+      throw new Error(`Ошибка при регистрации:\n${error}`);
+    });
+}
+
+export async function authUser(
+  login: string,
+  password: string
+): Promise<Token> {
+  return await axiosInstance
+    .post("/auth/signin", {
+      login,
+      password,
+    })
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((error) => {
+      throw new Error(`Ошибка при авторизации:\n${error}`);
+    });
+}
+
+export async function logoutUser(): Promise<void> {
+  await axiosInstance.post("/user/logout").catch((error) => {
+    throw new Error(`Ошибка при выходе из системы:\n${error}`);
   });
+}
+
+export async function refreshAccessToken(
+  refreshToken: string | null
+): Promise<Token> {
+  return await axiosInstance
+    .post("/auth/refresh", {
+      refreshToken,
+    })
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((error) => {
+      throw new Error(`Ошибка при обновлении ключа доступа:\n${error}`);
+    });
+}
+
+export async function loadUserProfile(): Promise<Profile> {
+  return await axiosInstance
+    .get("/user/profile")
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((error) => {
+      throw new Error(`Ошибка при загрузке данных профиля:\n${error}`);
+    });
 }
