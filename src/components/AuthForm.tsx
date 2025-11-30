@@ -210,11 +210,16 @@ function AuthForm() {
                 <Form.Item<FieldType>
                   label="Телефон"
                   name="phoneNumber"
-                  rules={[{
-                    whitespace: true,
-                    message: "Пожалуйста, введите свой телефон!",
-                    pattern: /\+\d+/g
-                  }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Пожалуйста, введите свой телефон!"
+                    },
+                    {
+                      pattern: /^\d+$/,
+                      message: "Телефон должен содержать только цифры!"
+                    }
+                  ]}
 
                 >
                   <Input placeholder="+7 (800) 555-35-35" />
