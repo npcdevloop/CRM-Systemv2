@@ -8,7 +8,7 @@ export const initialStateUser = {
   registerRequest: initAsyncParticle<void>(),
   logOutRequest: initAsyncParticle<void>(),
   refreshTokenAuthRequest: initAsyncParticle<Token>(),
-  isAuth: false,
+  isAuth: initAsyncParticle<boolean>(),
 };
 
 export const initialStateTodo = {

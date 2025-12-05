@@ -19,7 +19,7 @@ const authSlice = createSlice({
     },
     logOut: (state) => {
       state.profileRequest.data = null;
-      state.isAuth = false;
+      state.isAuth.data = false;
     },
   },
   extraReducers: (builder) => {

@@ -13,7 +13,7 @@ export interface UserState {
   registerRequest: IAsyncParticle<void>;
   logOutRequest: IAsyncParticle<void>;
   refreshTokenAuthRequest: IAsyncParticle<Token>;
-  isAuth: boolean;
+  isAuth: IAsyncParticle<boolean>;
 }
 
 export const selectAuthStore = (state: RootState): UserState => state.auth;
