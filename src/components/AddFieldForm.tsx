@@ -1,20 +1,18 @@
 import { Button, Input, Flex, Form, notification } from 'antd';
 import type { FormProps } from 'antd';
-import { createTask } from '../api/api';
 import { memo } from 'react';
-
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { createTodosTask, fetchTodosByFilter } from '../store/apiThunk';
+import { selectTab } from '../store/todo/selectors';
+import type { NotificationType } from '../types/interface';
 
 type FieldType = {
   title: string;
 };
 
-interface Props {
-  updateTasks: () => void
-}
-
-const AddFieldForm = memo(function AddFieldForm({ updateTasks }: Props) {
-
+const AddFieldForm = memo(function AddFieldForm() {
+  const dispatch = useAppDispatch();
+  const tab = useAppSelector(selectTab)
   const [api, contextHolder] = notification.useNotification();
 
   const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
@@ -27,8 +25,8 @@ const AddFieldForm = memo(function AddFieldForm({ updateTasks }: Props) {
 
   const onFinish: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
-      await createTask(title)
-      await updateTasks()
+      await dispatch(createTodosTask({ title }))
+      await dispatch(fetchTodosByFilter(tab))
     } catch (error) {
       openNotificationWithIcon('error', error)
       throw new Error(`Ошибка при создании задачи:\n${error}`)

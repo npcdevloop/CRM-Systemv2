@@ -1,89 +1,51 @@
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { loadTasksByFilter } from "../api/api";
-import type { Filter, MetaResponse, Todo, TodoInfo } from "../types/interface";
+import { useEffect, useRef } from "react";
 import TaskList from "../components/TaskList";
 import { Alert, Flex, Spin } from "antd";
 import AddFieldForm from "../components/AddFieldForm";
 import Tabs from "../components/Tabs";
+import { selectTab, selectTodosFull } from "../store/todo/selectors";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchTodosByFilter } from "../store/apiThunk";
 
 function TodoListPage() {
-  const [data, setData] = useState<MetaResponse<Todo, TodoInfo>>({
-    data: [],
-    info: {
-      all: 0,
-      inWork: 0,
-      completed: 0
-    },
-    meta: {
-      totalAmount: 0
-    }
-  })
-  const [tab, setTab] = useState<Filter>('all');
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<boolean>()
+  const dispatch = useAppDispatch();
+  const { data, status: listStatus } = useAppSelector(selectTodosFull)
+  const tab = useAppSelector(selectTab)
   const delay: number = 5000;
   const timerId = useRef<ReturnType<typeof setInterval>>(0);
 
+  const updateDataTasks = async () => {
+    await dispatch(fetchTodosByFilter(tab))
+  }
+
   useEffect(() => {
-    const updateDataTasks = async () => {
-      try {
-        setLoading(true)
-        await updateTasks()
-        setLoading(false)
-      } catch {
-        setError(false)
-      }
-    }
 
     updateDataTasks()
 
-    timerId.current = setInterval(updateTasks, delay)
+    timerId.current = setInterval(updateDataTasks, delay)
 
     return () => {
       clearInterval(timerId.current)
     };
 
-  }, [tab])
-
-
-
-  const updateTasks = useCallback(async () => {
-    try {
-      const tasks = await loadTasksByFilter(tab)
-      setData(tasks)
-    } catch {
-      setError(true)
-    }
-  }
-    , [tab])
+  }, [dispatch, tab])
 
   return (
     <Flex vertical>
 
-      <AddFieldForm
-        updateTasks={updateTasks}
-      />
-      <Tabs
-        all={data.info?.all ?? 0}
-        completed={data?.info?.completed ?? 0}
-        inWork={data?.info?.inWork ?? 0}
-        setTab={setTab}
-      />
+      <AddFieldForm />
+      <Tabs />
 
-      {loading && <Spin size="large" />}
-      {error && <Alert
+      {listStatus.isLoading && !data && <Spin size="large" />}
+      {listStatus.hasError && <Alert
         message="Ошибка"
         description="Произошла ошибка при загрузке задач."
         type="error"
         showIcon
       />}
 
-      <TaskList
-        data={data.data}
-        meta={data.meta}
-        updateTasks={updateTasks}
-      />
+      <TaskList />
     </Flex>
   );
 }

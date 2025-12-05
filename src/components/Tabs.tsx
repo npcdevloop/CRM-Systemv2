@@ -1,13 +1,13 @@
 import { Tabs } from "antd";
 import type { TabsProps } from 'antd';
-import type { Filter, TodoInfo } from '../types/interface';
+import type { Filter } from '../types/interface';
 import { memo } from "react";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { selectTodosFull } from "../store/todo/selectors";
+import { setTab } from "../store/todo/Slices/slice";
 
 
-interface SetTab {
-  tab?: Filter,
-  setTab: (filter: Filter) => void
-}
+
 
 function isFilter(key: unknown): key is Filter {
   const filter = ['all', 'completed', 'inWork'] as const;
@@ -19,11 +19,14 @@ function isFilter(key: unknown): key is Filter {
   return (filter as readonly string[]).includes(key);;
 }
 
-const Tab = memo(function Tab({ all, completed, inWork, setTab }: TodoInfo & SetTab) {
+const Tab = memo(function Tab() {
+  const dispatch = useAppDispatch();
+  const { data } = useAppSelector(selectTodosFull)
+  const { all, inWork, completed } = data?.info || { all: 0, inWork: 0, completed: 0 }
 
   const onChangeActiveTab = (key: string) => {
     if (isFilter(key)) {
-      setTab(key)
+      dispatch(setTab(key))
     }
   };
 

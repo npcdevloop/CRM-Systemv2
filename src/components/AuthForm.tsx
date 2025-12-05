@@ -3,11 +3,12 @@ import { Content } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { authUser, registrationUser } from "../api/api";
-import { setToken } from "../store/auth-slice";
-import { useDispatch } from "react-redux";
 import type { UserRegistration } from "../types/interface_user";
-
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
+import InputMask from "antd-mask-input";
+import { setAccessToken } from "../utils/auth";
+import { useDispatch } from "react-redux";
+import { setAuth } from "../store/auth/Slices/slice";
+import type { NotificationType } from "../types/interface";
 
 type FieldType = {
   email?: string;
@@ -45,34 +46,45 @@ function AuthForm() {
   const { lg } = useBreakpoint()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate();
-  const isRegister = searchParams.get('mode') === 'signup'
   const dispatch = useDispatch()
   const [api, contextHolder] = notification.useNotification();
-
   const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
     api[type]({
-      message: 'Ошибка!',
+      message: 'Уведомление!',
       description:
         `${error}`,
     });
   };
 
+  const isRegister = searchParams.get('mode') === 'signup'
+  const phoneMask = '+0(000)000-00-00';
 
   const onFinish: FormProps<UserRegistration>['onFinish'] = async ({ login, username, email, phoneNumber, password }) => {
     try {
 
       if (isRegister) {
-        await registrationUser(email, login, password, phoneNumber, username)
-        openNotificationWithIcon('success', 'Регистрация прошла успешно! Авторизируйтесь!')
-        navigate('/auth?mode=login')
+        try {
+          await registrationUser(email, login, password, phoneNumber, username)
+          navigate('/auth?mode=login')
+          openNotificationWithIcon('success', 'Регистрация прошла успешно! Авторизируйтесь!')
+        } catch (error) {
+          openNotificationWithIcon('error', `Ошибка при регистрации! ${error}`)
+        }
+
       }
 
       if (!isRegister) {
-        const { refreshToken, accessToken } = await authUser(login, password)
-        localStorage.setItem('refreshToken', refreshToken)
-        dispatch(setToken(accessToken))
-        openNotificationWithIcon('success', 'Авторизация прошла успешно!')
-        navigate('/')
+        try {
+          const { refreshToken, accessToken } = await authUser(login, password)
+          localStorage.setItem('refreshToken', refreshToken)
+          setAccessToken(accessToken)
+          dispatch(setAuth(true))
+          navigate('/')
+          openNotificationWithIcon('success', 'Авторизация прошла успешно!')
+        } catch (error) {
+          openNotificationWithIcon('error', `Ошибка при авторизации! ${error}`)
+        }
+
       }
 
     } catch (error) {
@@ -152,7 +164,8 @@ function AuthForm() {
                 },
                 Button: {
                   colorPrimary: '#7F265B',
-                  colorPrimaryHover: '#722252ff'
+                  colorPrimaryHover: '#722252ff',
+                  colorPrimaryActive: '#722252ff',
                 }
               },
             }}>
@@ -210,20 +223,11 @@ function AuthForm() {
                 <Form.Item<FieldType>
                   label="Телефон"
                   name="phoneNumber"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Пожалуйста, введите свой телефон!"
-                    },
-                    {
-                      pattern: /^\+?[1-9]\d{1,14}$/,
-                      message: "Введите номер в международном формате (например, +7...)"
-                    }
-                  ]}
-
-
                 >
-                  <Input placeholder="+7 (800) 555-35-35" />
+                  <InputMask
+                    mask={phoneMask}
+                  />
+
                 </Form.Item>
               }
 

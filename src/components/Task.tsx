@@ -1,13 +1,12 @@
-import { useState } from 'react';
-import type { Todo } from '../types/interface'
+import type { NotificationType, Todo } from '../types/interface'
 import { Button, List, Checkbox, Input, Form, Typography, type FormProps, Flex, notification } from 'antd'
 import { CloseOutlined, DeleteOutlined, FormOutlined, SaveOutlined } from '@ant-design/icons'
-import { deleteTask, updateTaskState } from '../api/api';
-
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectTab } from '../store/todo/selectors';
+import { deleteTodosTask, fetchTodosByFilter, updateTodosTaskState } from '../store/apiThunk';
+import { memo, useState } from 'react';
 
 interface Props {
-  updateTasks: () => void,
   todo: Todo
 }
 
@@ -15,9 +14,11 @@ type FieldType = {
   title: string;
 };
 
-function Task({ todo, updateTasks }: Props) {
+const Task = memo(({ todo }: Props) => {
   const { id, title, created, isDone } = todo
   const [edit, setEdit] = useState<boolean>(false)
+  const tab = useAppSelector(selectTab)
+  const dispatch = useAppDispatch()
   const { Text } = Typography;
   const [api, contextHolder] = notification.useNotification();
 
@@ -39,8 +40,8 @@ function Task({ todo, updateTasks }: Props) {
 
   async function onDeleteTask() {
     try {
-      await deleteTask(id)
-      await updateTasks()
+      await dispatch(fetchTodosByFilter(tab))
+      await dispatch(deleteTodosTask({ id }))
     } catch (error) {
       openNotificationWithIcon('error', error)
       throw new Error(`Ошибка при удалении задачи:\n${error}`)
@@ -50,8 +51,8 @@ function Task({ todo, updateTasks }: Props) {
 
   const onSaveEditTask: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
-      await updateTaskState(id, { title: title })
-      await updateTasks()
+      await dispatch(updateTodosTaskState({ id, title }))
+      await dispatch(fetchTodosByFilter(tab))
       setEdit(false)
     } catch (error) {
       openNotificationWithIcon('error', error)
@@ -61,8 +62,8 @@ function Task({ todo, updateTasks }: Props) {
 
   async function onCompletedTask(event: { target: { checked: boolean; }; }) {
     try {
-      await updateTaskState(id, { isDone: event.target.checked })
-      await updateTasks()
+      await dispatch(updateTodosTaskState({ id, isDone: event.target.checked }))
+      await dispatch(fetchTodosByFilter(tab))
     } catch (error) {
       openNotificationWithIcon('error', error)
       throw new Error(`Ошибка при обновлении готовности задачи:\n${error}`)
@@ -132,6 +133,6 @@ function Task({ todo, updateTasks }: Props) {
       <meta name="Дата" content={created} />
     </List.Item>
   );
-}
+});
 
 export default Task;

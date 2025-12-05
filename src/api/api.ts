@@ -6,17 +6,23 @@ import type {
   TodoRequest,
 } from "../types/interface";
 import axios from "axios";
-import store from "../store/index";
-import { logOut, setToken } from "../store/auth-slice";
+import { logOut, setAuth } from "../store/auth/Slices/slice";
 import type { Profile, Token } from "../types/interface_user";
+import { getAccessToken, setAccessToken } from "../utils/auth";
+
+let store;
+
+export const injectStore = (_store) => {
+  store = _store;
+};
 
 const axiosInstance = axios.create({
   baseURL: "https://easydev.club/api/v1",
 });
 
 axiosInstance.interceptors.request.use(async (config) => {
-  const state = await store.getState();
-  const accessToken = state.auth.token;
+  const accessToken = await getAccessToken();
+
   if (config.url === "/auth/signin") {
     return config;
   }
@@ -53,10 +59,12 @@ axiosInstance.interceptors.response.use(
           refreshTokenItem
         );
         localStorage.setItem("refreshToken", refreshToken);
-        store.dispatch(setToken(accessToken));
+        await setAccessToken(accessToken);
+        store.dispatch(setAuth(true));
         return axiosInstance.request(originalRequest);
       } catch (error) {
         localStorage.removeItem("refreshToken");
+        await setAccessToken("");
         store.dispatch(logOut());
         window.location.href = "/auth";
         throw new Error(`Не удалось авторизовать пользователя: ${error}`);
@@ -85,11 +93,14 @@ export async function loadTasksByFilter(
     });
 }
 
-export async function createTask(title: string): Promise<void> {
-  await axiosInstance
+export async function createTask(title: string): Promise<Todo> {
+  return await axiosInstance
     .post("/todos", {
       title: title,
       isDone: false,
+    })
+    .then(({ data }) => {
+      return data;
     })
     .catch((error) => {
       throw new Error(`Ошибка при создании задачи:\n${error}`);

@@ -6,7 +6,7 @@ import { LogoutOutlined, UnorderedListOutlined, UserOutlined } from "@ant-design
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import type { MenuInfo } from "rc-menu/lib/interface";
 import { logoutUser } from "../api/api";
-import { logOut } from "../store/auth-slice";
+import { logOut } from "../store/auth/Slices/slice";
 import { useDispatch } from "react-redux";
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -44,7 +44,7 @@ function LayoutPage() {
 
   const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
     api[type]({
-      message: 'Ошибка!',
+      message: 'Уведомление!',
       description:
         `${error}`,
     });
