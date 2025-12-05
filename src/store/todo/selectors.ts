@@ -22,7 +22,7 @@ export interface TodoState {
   createTaskRequest: IAsyncParticle<Todo>;
   updateTaskStateRequest: IAsyncParticle<void>;
   deleteTaskRequest: IAsyncParticle<void>;
-  tab: Filter;
+  tab: IAsyncParticle<Filter>;
 }
 
 export const selectTodoStore = (state: RootState): TodoState => state.todo;

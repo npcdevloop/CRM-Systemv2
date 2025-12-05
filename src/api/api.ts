@@ -9,10 +9,11 @@ import axios from "axios";
 import { logOut, setAuth } from "../store/auth/Slices/slice";
 import type { Profile, Token } from "../types/interface_user";
 import { getAccessToken, setAccessToken } from "../utils/auth";
+import type { State } from "../store";
 
-let store;
+let store: State;
 
-export const injectStore = (_store) => {
+export const injectStore = (_store: State) => {
   store = _store;
 };
 

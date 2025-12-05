@@ -16,5 +16,5 @@ export const initialStateTodo = {
   createTaskRequest: initAsyncParticle<Todo>(),
   updateTaskStateRequest: initAsyncParticle<void>(),
   deleteTaskRequest: initAsyncParticle<void>(),
-  tab: "all" as Filter,
+  tab: initAsyncParticle<Filter>(),
 };

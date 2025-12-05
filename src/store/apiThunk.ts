@@ -49,8 +49,9 @@ export const fetchTodosByFilter: TSliceMethod<
       const response = await loadTasksByFilter(filter);
       return response;
     } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
       return rejectWithValue({
-        errorMessage: e.message || "Произошла ошибка при загрузке задач!",
+        errorMessage: message || "Произошла ошибка при загрузке задач!",
       });
     }
   }
@@ -64,8 +65,9 @@ export const createTodosTask: TSliceMethod<Todo, CreateTaskTitle> =
         const response = await createTask(title);
         return response;
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         return rejectWithValue({
-          errorMessage: e.message || "Произошла ошибка при создании задачи!",
+          errorMessage: message || "Произошла ошибка при создании задачи!",
         });
       }
     }
@@ -80,8 +82,9 @@ export const updateTodosTaskState: TSliceMethod<void, TodoUpdateParams> =
         await updateTaskState(id, { title, isDone });
         return;
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         return rejectWithValue({
-          errorMessage: e.message || "Произошла ошибка при обновлении задачи!",
+          errorMessage: message || "Произошла ошибка при обновлении задачи!",
         });
       }
     }
@@ -96,8 +99,9 @@ export const deleteTodosTask: TSliceMethod<void, TodoUpdateParams> =
         await deleteTask(id);
         return;
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         return rejectWithValue({
-          errorMessage: e.message || "Произошла ошибка при удалении задачи!",
+          errorMessage: message || "Произошла ошибка при удалении задачи!",
         });
       }
     }
@@ -119,8 +123,9 @@ export const registrationUserAuth: TSliceMethod<void, UserRegistration> =
         );
         return response;
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         return rejectWithValue({
-          errorMessage: e.message || "Произошла ошибка при регистрации!",
+          errorMessage: message || "Произошла ошибка при регистрации!",
         });
       }
     }
@@ -134,8 +139,9 @@ export const loadProfileUserAuth: TSliceMethod<Profile, void> =
         const response = await loadUserProfile();
         return response;
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         return rejectWithValue({
-          errorMessage: e.message || "Произошла ошибка при загрузке профиля!",
+          errorMessage: message || "Произошла ошибка при загрузке профиля!",
         });
       }
     }
@@ -153,8 +159,9 @@ export const logoutUserAuth: TSliceMethod<void, void> = createAsyncThunk<
       await logoutUser();
       return;
     } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
       return rejectWithValue({
-        errorMessage: e.message || "Произошла ошибка при выходе из системы!",
+        errorMessage: message || "Произошла ошибка при выходе из системы!",
       });
     }
   }
@@ -173,8 +180,9 @@ export const loginUserAuth: TSliceMethod<Token, AuthData> = createAsyncThunk<
       const response = await authUser(login, password);
       return response;
     } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
       return rejectWithValue({
-        errorMessage: e.message || "Произошла ошибка при авторизации!",
+        errorMessage: message || "Произошла ошибка при авторизации!",
       });
     }
   }
@@ -190,9 +198,10 @@ export const refreshTokenAuth: TSliceMethod<Token, RefreshToken> =
         const response = await refreshAccessToken(refreshToken);
         return response;
       } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         return rejectWithValue({
           errorMessage:
-            e.message || "Произошла ошибка при обновлении ключей доступа!",
+            message || "Произошла ошибка при обновлении ключей доступа!",
         });
       }
     }

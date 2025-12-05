@@ -35,6 +35,7 @@ export type TSliceMethod<RS, RQ> = AsyncThunk<
 >;
 
 // Eсли нет отдельного типа для пагинации
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TPaginationSliceMethod<RS> = AsyncThunk<RS, any, any>;
 
 export const initAsyncParticle = <T>(
@@ -47,7 +48,15 @@ export const initAsyncParticle = <T>(
 });
 
 export const addAsyncBuilderCases = <
-  TState extends Record<string, unknown>,
+  TState extends Record<
+    string,
+    {
+      status: string;
+      errorCounter: number;
+      data: unknown;
+      error: unknown;
+    }
+  >,
   RQ,
   RS
 >(
