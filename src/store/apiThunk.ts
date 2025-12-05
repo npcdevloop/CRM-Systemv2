@@ -8,7 +8,6 @@ import {
   registrationUser,
   authUser,
   logoutUser,
-  refreshAccessToken,
   loadUserProfile,
 } from "../api/api";
 import type {
@@ -21,7 +20,6 @@ import type {
 import type {
   AuthData,
   Profile,
-  RefreshToken,
   Token,
   UserRegistration,
 } from "../types/interface_user";
@@ -187,22 +185,3 @@ export const loginUserAuth: TSliceMethod<Token, AuthData> = createAsyncThunk<
     }
   }
 );
-
-export const refreshTokenAuth: TSliceMethod<Token, RefreshToken> =
-  createAsyncThunk<Token, RefreshToken, { rejectValue: IErrorData }>(
-    "auth/refreshTokenAuth",
-
-    async (params, { rejectWithValue }) => {
-      try {
-        const { refreshToken } = params;
-        const response = await refreshAccessToken(refreshToken);
-        return response;
-      } catch (e) {
-        const message = e instanceof Error ? e.message : String(e);
-        return rejectWithValue({
-          errorMessage:
-            message || "Произошла ошибка при обновлении ключей доступа!",
-        });
-      }
-    }
-  );

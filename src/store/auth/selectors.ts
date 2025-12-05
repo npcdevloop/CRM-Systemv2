@@ -5,14 +5,13 @@ import {
   getAsyncRequestData,
   type IAsyncParticle,
 } from "../utils";
-import type { Profile, Token } from "../../types/interface_user";
+import type { Profile } from "../../types/interface_user";
 
 export interface UserState {
   profileRequest: IAsyncParticle<Profile>;
   loginRequest: IAsyncParticle<void>;
   registerRequest: IAsyncParticle<void>;
   logOutRequest: IAsyncParticle<void>;
-  refreshTokenAuthRequest: IAsyncParticle<Token>;
   isAuth: IAsyncParticle<boolean>;
 }
 
@@ -46,13 +45,4 @@ export const selectRegisterRequestStatus = createDraftSafeSelector(
 export const selectLogOutRequest = createDraftSafeSelector(
   selectAuthStore,
   (state) => getAsyncDataStatus(state.logOutRequest)
-);
-
-export const selecTokenStatus = createDraftSafeSelector(
-  selectAuthStore,
-  (state) => getAsyncDataStatus(state.refreshTokenAuthRequest)
-);
-
-export const selectToken = createDraftSafeSelector(selectAuthStore, (state) =>
-  getAsyncRequestData(state.refreshTokenAuthRequest)
 );

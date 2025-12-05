@@ -5,7 +5,6 @@ import {
   loadProfileUserAuth,
   loginUserAuth,
   logoutUserAuth,
-  refreshTokenAuth,
   registrationUserAuth,
 } from "../../apiThunk";
 
@@ -15,7 +14,7 @@ const authSlice = createSlice({
   reducers: {
     setAuth: (state, action) => {
       const isAuth = action.payload;
-      state.isAuth = isAuth;
+      state.isAuth.data = isAuth;
     },
     logOut: (state) => {
       state.profileRequest.data = null;
@@ -27,7 +26,6 @@ const authSlice = createSlice({
     addAsyncBuilderCases(builder, registrationUserAuth, "registerRequest");
     addAsyncBuilderCases(builder, loadProfileUserAuth, "profileRequest");
     addAsyncBuilderCases(builder, logoutUserAuth, "logOutRequest");
-    addAsyncBuilderCases(builder, refreshTokenAuth, "refreshTokenAuthRequest");
   },
 });
 

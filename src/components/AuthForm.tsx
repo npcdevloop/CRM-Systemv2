@@ -6,9 +6,10 @@ import { authUser, registrationUser } from "../api/api";
 import type { UserRegistration } from "../types/interface_user";
 import InputMask from "antd-mask-input";
 import { setAccessToken } from "../utils/auth";
-import { useDispatch } from "react-redux";
 import { setAuth } from "../store/auth/Slices/slice";
 import type { NotificationType } from "../types/interface";
+import { useAppDispatch } from "../store/hooks";
+
 
 type FieldType = {
   email?: string;
@@ -46,13 +47,15 @@ function AuthForm() {
   const { lg } = useBreakpoint()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const [api, contextHolder] = notification.useNotification();
-  const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
+  const openNotificationWithIcon = (type: NotificationType, error: unknown, pauseOnHover: boolean) => {
     api[type]({
       message: 'Уведомление!',
       description:
         `${error}`,
+      showProgress: true,
+      pauseOnHover,
     });
   };
 
@@ -65,10 +68,10 @@ function AuthForm() {
       if (isRegister) {
         try {
           await registrationUser(email, login, password, phoneNumber, username)
+          openNotificationWithIcon('success', 'Регистрация прошла успешно! Авторизируйтесь!', true)
           navigate('/auth?mode=login')
-          openNotificationWithIcon('success', 'Регистрация прошла успешно! Авторизируйтесь!')
         } catch (error) {
-          openNotificationWithIcon('error', `Ошибка при регистрации! ${error}`)
+          openNotificationWithIcon('error', `Ошибка при регистрации! ${error}`, true)
         }
 
       }
@@ -76,235 +79,239 @@ function AuthForm() {
       if (!isRegister) {
         try {
           const { refreshToken, accessToken } = await authUser(login, password)
+          openNotificationWithIcon('success', 'Авторизация прошла успешно!', true)
           localStorage.setItem('refreshToken', refreshToken)
           setAccessToken(accessToken)
           dispatch(setAuth(true))
           navigate('/')
-          openNotificationWithIcon('success', 'Авторизация прошла успешно!')
         } catch (error) {
-          openNotificationWithIcon('error', `Ошибка при авторизации! ${error}`)
+          openNotificationWithIcon('error', `Ошибка при авторизации! ${error}`, true)
         }
 
       }
 
     } catch (error) {
-      openNotificationWithIcon('error', error)
+      openNotificationWithIcon('error', error, true)
     }
 
 
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
-    openNotificationWithIcon('error', `Произошла ошибка при ${isRegister ? 'регистрации' : 'авторизации'}!`)
+    openNotificationWithIcon('error', `Произошла ошибка при ${isRegister ? 'регистрации' : 'авторизации'}!`, true)
   };
 
 
 
   return (
-    <Layout style={layoutStyle} >
-      <Flex>
-        {lg &&
-          <Sider width='50%' style={siderStyle}>
-            <Image
-              preview={false}
-              height='100%'
-              src="loginCover.png"
-              style={{ borderRadius: "3% 0 0 3%", objectFit: 'cover' }}
-            />
-          </Sider>}
+    <>
 
-        <Content style={contentStyle}>
-          <Form
-            name="basic"
-            layout={"vertical"}
-            style={
-              isRegister ?
-                {
-                  margin: '0 auto',
-                  maxWidth: '26.3rem',
-                  paddingTop: '2rem'
-                }
+      {contextHolder}
+      <Layout style={layoutStyle} >
+        <Flex>
+          {lg &&
+            <Sider width='50%' style={siderStyle}>
+              <Image
+                preview={false}
+                height='100%'
+                src="loginCover.png"
+                style={{ borderRadius: "3% 0 0 3%", objectFit: 'cover' }}
+              />
+            </Sider>}
+
+          <Content style={contentStyle}>
+            <Form
+              name="basic"
+              layout={"vertical"}
+              style={
+                isRegister ?
+                  {
+                    margin: '0 auto',
+                    maxWidth: '26.3rem',
+                    paddingTop: '2rem'
+                  }
+                  :
+                  {
+                    margin: '0 auto',
+                    maxWidth: '26.3rem',
+                    paddingTop: '10.2rem'
+                  }
+              }
+              initialValues={{ remember: true }}
+              onFinish={onFinish}
+              onFinishFailed={onFinishFailed}
+              autoComplete="off"
+              requiredMark={false}
+            >
+
+              <Image
+                preview={false}
+                width='17%'
+                src="loginLogo.png"
+              />
+
+              <div style={isRegister ?
+                { margin: '1rem 0', textAlign: 'left' }
                 :
-                {
-                  margin: '0 auto',
-                  maxWidth: '26.3rem',
-                  paddingTop: '10.2rem'
-                }
-            }
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
-            requiredMark={false}
-          >
-            {contextHolder}
-            <Image
-              preview={false}
-              width='17%'
-              src="loginLogo.png"
-            />
+                { margin: '2.25rem 1.15rem', textAlign: 'left' }
+              }>
+                <Title level={1} style={{ margin: '0.8rem 0', color: '#525252' }}> {isRegister ? 'Зарегистрируйте свою учетную запись' : 'Войдите в свою учетную запись'} </Title>
+                <Text style={{ color: '#525252' }}>Посмотрите, что происходит с вашим бизнесом</Text>
+              </div>
 
-            <div style={isRegister ?
-              { margin: '1rem 0', textAlign: 'left' }
-              :
-              { margin: '2.25rem 1.15rem', textAlign: 'left' }
-            }>
-              <Title level={1} style={{ margin: '0.8rem 0', color: '#525252' }}> {isRegister ? 'Зарегистрируйте свою учетную запись' : 'Войдите в свою учетную запись'} </Title>
-              <Text style={{ color: '#525252' }}>Посмотрите, что происходит с вашим бизнесом</Text>
-            </div>
+              <ConfigProvider theme={{
+                components: {
+                  Form: {
+                    labelColor: '#828282'
+                  },
+                  Checkbox: {
+                    colorPrimary: '#7F265B',
+                    colorPrimaryHover: '#722252ff'
+                  },
+                  Button: {
+                    colorPrimary: '#7F265B',
+                    colorPrimaryHover: '#722252ff',
+                    colorPrimaryActive: '#722252ff',
+                  }
+                },
+              }}>
+                {isRegister &&
+                  <Form.Item<FieldType>
+                    label="Имя пользователя"
+                    name="username"
+                    rules={[{
+                      whitespace: true,
+                      min: 1,
+                      max: 60,
+                      required: true,
+                      message: 'Пожалуйста, введите свое Имя!'
+                    }]}
 
-            <ConfigProvider theme={{
-              components: {
-                Form: {
-                  labelColor: '#828282'
-                },
-                Checkbox: {
-                  colorPrimary: '#7F265B',
-                  colorPrimaryHover: '#722252ff'
-                },
-                Button: {
-                  colorPrimary: '#7F265B',
-                  colorPrimaryHover: '#722252ff',
-                  colorPrimaryActive: '#722252ff',
+                  >
+                    <Input placeholder="Иванов Иван" />
+                  </Form.Item>
                 }
-              },
-            }}>
-              {isRegister &&
+
+
                 <Form.Item<FieldType>
-                  label="Имя пользователя"
-                  name="username"
+                  label="Логин"
+                  name="login"
                   rules={[{
                     whitespace: true,
-                    min: 1,
+                    min: 2,
                     max: 60,
                     required: true,
-                    message: 'Пожалуйста, введите свое Имя!'
+                    message: 'Пожалуйста, введите свой логин!'
                   }]}
 
                 >
-                  <Input placeholder="Иванов Иван" />
+                  <Input placeholder="abrakadabra134" />
                 </Form.Item>
-              }
 
 
-              <Form.Item<FieldType>
-                label="Логин"
-                name="login"
-                rules={[{
-                  whitespace: true,
-                  min: 2,
-                  max: 60,
-                  required: true,
-                  message: 'Пожалуйста, введите свой логин!'
-                }]}
+                {isRegister &&
+                  <Form.Item<FieldType>
+                    label="Email"
+                    name="email"
+                    rules={[{
+                      whitespace: true,
+                      required: true,
+                      type: "email",
+                      message: 'Пожалуйста, введите свой email!'
+                    }]}
 
-              >
-                <Input placeholder="abrakadabra134" />
-              </Form.Item>
+                  >
+                    <Input placeholder="mail@abc.com" />
+                  </Form.Item>
+                }
 
+                {isRegister &&
+                  <Form.Item<FieldType>
+                    label="Телефон"
+                    name="phoneNumber"
+                  >
+                    <InputMask
+                      mask={phoneMask}
+                    />
 
-              {isRegister &&
+                  </Form.Item>
+                }
+
                 <Form.Item<FieldType>
-                  label="Email"
-                  name="email"
+                  label="Пароль"
+                  name="password"
                   rules={[{
                     whitespace: true,
-                    required: true,
-                    type: "email",
-                    message: 'Пожалуйста, введите свой email!'
+                    min: 6,
+                    max: 60,
+                    required: true, message: 'Минимальное количество символов 6!'
                   }]}
-
                 >
-                  <Input placeholder="mail@abc.com" />
+                  <Input.Password placeholder="*****************" autoComplete="off" />
                 </Form.Item>
-              }
 
-              {isRegister &&
-                <Form.Item<FieldType>
-                  label="Телефон"
-                  name="phoneNumber"
-                >
-                  <InputMask
-                    mask={phoneMask}
-                  />
-
-                </Form.Item>
-              }
-
-              <Form.Item<FieldType>
-                label="Пароль"
-                name="password"
-                rules={[{
-                  whitespace: true,
-                  min: 6,
-                  max: 60,
-                  required: true, message: 'Минимальное количество символов 6!'
-                }]}
-              >
-                <Input.Password placeholder="*****************" autoComplete="off" />
-              </Form.Item>
-
-              {isRegister &&
-                <Form.Item<FieldType>
-                  label="Подтвердите пароль"
-                  name="confirmPassword"
-                  dependencies={['password']}
-                  hasFeedback
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Минимальное количество символов 6!',
-                      min: 6,
-                      max: 60,
-                    },
-                    ({ getFieldValue }) => ({
-                      validator(_, value) {
-                        if (!value || getFieldValue('password') === value) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(new Error('Пароль, который вы ввели, не соответствует!'));
+                {isRegister &&
+                  <Form.Item<FieldType>
+                    label="Подтвердите пароль"
+                    name="confirmPassword"
+                    dependencies={['password']}
+                    hasFeedback
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Минимальное количество символов 6!',
+                        min: 6,
+                        max: 60,
                       },
-                    }),
-                  ]}
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue('password') === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(new Error('Пароль, который вы ввели, не соответствует!'));
+                        },
+                      }),
+                    ]}
 
-                >
-                  <Input.Password placeholder="*****************" />
+                  >
+                    <Input.Password placeholder="*****************" />
+                  </Form.Item>
+                }
+                {!isRegister &&
+                  <Flex justify="space-between">
+                    <Form.Item<FieldType> name="remember" valuePropName="checked" label={null}>
+                      <Checkbox style={{ color: '#A1A1A1' }}>Запомнить меня</Checkbox>
+                    </Form.Item>
+                    <Form.Item label={null}>
+                      <Link style={{ color: '#7F265B', fontWeight: 600 }}>
+                        Забыли пароль?
+                      </Link>
+                    </Form.Item>
+                  </Flex>
+                }
+
+
+                <Form.Item>
+                  <Button block type="primary" htmlType="submit">
+                    {isRegister ? 'Зарегистрироваться' : "Войти"}
+                  </Button>
                 </Form.Item>
-              }
-              {!isRegister &&
-                <Flex justify="space-between">
-                  <Form.Item<FieldType> name="remember" valuePropName="checked" label={null}>
-                    <Checkbox style={{ color: '#A1A1A1' }}>Запомнить меня</Checkbox>
-                  </Form.Item>
-                  <Form.Item label={null}>
-                    <Link style={{ color: '#7F265B', fontWeight: 600 }}>
-                      Забыли пароль?
-                    </Link>
-                  </Form.Item>
-                </Flex>
-              }
+              </ConfigProvider>
 
-
-              <Form.Item>
-                <Button block type="primary" htmlType="submit">
-                  {isRegister ? 'Зарегистрироваться' : "Войти"}
-                </Button>
-              </Form.Item>
-            </ConfigProvider>
-
-            <Flex justify="center" gap={'0.4rem'} style={
-              isRegister ?
-                { marginTop: '0' }
-                :
-                { marginTop: '16dvh' }
-            }>
-              <Text style={{ color: '#828282' }}>{isRegister ? 'Зарегистрировались?' : "Еще не зарегистрировались?"}</Text>
-              <NavLink to={isRegister ? '/auth?mode=login' : "/auth?mode=signup"} style={{ color: '#7F265B', fontWeight: '600' }}>{isRegister ? 'Войдите в аккаунт' : "Создайте аккаунт!"}</NavLink>
-            </Flex>
-          </Form>
-        </Content>
-      </Flex>
-    </Layout >
+              <Flex justify="center" gap={'0.4rem'} style={
+                isRegister ?
+                  { marginTop: '0' }
+                  :
+                  { marginTop: '16dvh' }
+              }>
+                <Text style={{ color: '#828282' }}>{isRegister ? 'Зарегистрировались?' : "Еще не зарегистрировались?"}</Text>
+                <NavLink to={isRegister ? '/auth?mode=login' : "/auth?mode=signup"} style={{ color: '#7F265B', fontWeight: '600' }}>{isRegister ? 'Войдите в аккаунт' : "Создайте аккаунт!"}</NavLink>
+              </Flex>
+            </Form>
+          </Content>
+        </Flex>
+      </Layout >
+    </>
   );
 }
 
