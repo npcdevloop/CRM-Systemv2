@@ -21,14 +21,34 @@ const axiosInstance = axios.create({
   baseURL: "https://easydev.club/api/v1",
 });
 
+let isRefreshRequest = false;
+
 axiosInstance.interceptors.request.use(async (config) => {
-  const accessToken = await getAccessToken();
+  const accessToken = getAccessToken();
 
   if (config.url === "/auth/signin") {
     return config;
   }
-  if (config.url === "/todos" && !accessToken) {
-    window.location.href = "/auth";
+  if (config.url === "/todos" && !accessToken && !isRefreshRequest) {
+    isRefreshRequest = true;
+    try {
+      const refreshTokenItem = localStorage.getItem("refreshToken");
+      const { accessToken, refreshToken } = await refreshAccessToken(
+        refreshTokenItem
+      );
+      localStorage.setItem("refreshToken", refreshToken);
+      await setAccessToken(accessToken);
+      config.headers.Authorization = `Bearer ${accessToken}`;
+      return config;
+    } catch (error) {
+      localStorage.removeItem("refreshToken");
+      await setAccessToken("");
+      store.dispatch(logOut());
+      window.location.href = "/auth";
+      throw new Error(`Не удалось авторизовать пользователя: ${error}`);
+    } finally {
+      isRefreshRequest = false;
+    }
   }
 
   if (accessToken) {
@@ -62,6 +82,7 @@ axiosInstance.interceptors.response.use(
         localStorage.setItem("refreshToken", refreshToken);
         await setAccessToken(accessToken);
         store.dispatch(setAuth(true));
+
         return axiosInstance.request(originalRequest);
       } catch (error) {
         localStorage.removeItem("refreshToken");
