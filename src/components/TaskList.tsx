@@ -15,7 +15,6 @@ function TaskList() {
       renderItem={
         (todo) => (
           <Task
-            key={todo.id}
             todo={todo}
           />
         )

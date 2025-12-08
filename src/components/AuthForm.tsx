@@ -9,6 +9,7 @@ import { setAccessToken } from "../utils/auth";
 import { setAuth } from "../store/auth/Slices/slice";
 import type { NotificationType } from "../types/interface";
 import { useAppDispatch } from "../store/hooks";
+import { AxiosError } from "axios";
 
 
 type FieldType = {
@@ -71,12 +72,17 @@ function AuthForm() {
           openNotificationWithIcon('success', 'Регистрация прошла успешно! Авторизируйтесь!', true)
           navigate('/auth?mode=login')
         } catch (error) {
-          openNotificationWithIcon('error', `Ошибка при регистрации! ${error}`, true)
+          if (error instanceof AxiosError) {
+            if (error.response?.status === 409) {
+              openNotificationWithIcon('error', `Ошибка при регистрации! Такой пользователь уже существует!`, true)
+            } else {
+              openNotificationWithIcon('error', `Ошибка при регистрации! Что-то пошло не так!`, true)
+            }
+
+          }
+
         }
-
-      }
-
-      if (!isRegister) {
+      } else {
         try {
           const { refreshToken, accessToken } = await authUser(login, password)
           openNotificationWithIcon('success', 'Авторизация прошла успешно!', true)
@@ -85,13 +91,18 @@ function AuthForm() {
           dispatch(setAuth(true))
           navigate('/')
         } catch (error) {
-          openNotificationWithIcon('error', `Ошибка при авторизации! ${error}`, true)
+          if (error instanceof AxiosError) {
+            if (error.response?.status === 401) {
+              openNotificationWithIcon('error', `Ошибка при авторизации! Неверно введены данные!`, true)
+            }
+          }
+
         }
 
       }
 
-    } catch (error) {
-      openNotificationWithIcon('error', error, true)
+    } catch {
+      openNotificationWithIcon('error', "Произошло что-то непредвиденное! Попробуйте повторить снова!", true)
     }
 
 

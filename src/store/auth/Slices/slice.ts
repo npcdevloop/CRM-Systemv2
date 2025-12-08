@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { initialStateUser } from "../../initialState";
-import { addAsyncBuilderCases } from "../../utils";
+import { addAsyncBuilderCases, resetAllFieldState } from "../../utils";
 import {
   loadProfileUserAuth,
   loginUserAuth,
@@ -17,8 +17,11 @@ const authSlice = createSlice({
       state.isAuth.data = isAuth;
     },
     logOut: (state) => {
-      state.profileRequest.data = null;
       state.isAuth.data = false;
+      resetAllFieldState(state, "profileRequest");
+      resetAllFieldState(state, "loginRequest");
+      resetAllFieldState(state, "registerRequest");
+      resetAllFieldState(state, "logOutRequest");
     },
   },
   extraReducers: (builder) => {

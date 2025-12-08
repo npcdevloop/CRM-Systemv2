@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import TaskList from "../components/TaskList";
 import { Alert, Flex, Spin } from "antd";
 import AddFieldForm from "../components/AddFieldForm";
-import Tabs from "../components/Tabs";
+import TabPanel from "../components/TabPanel";
 import { selectTab, selectTodosFull } from "../store/todo/selectors";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchTodosByFilter } from "../store/apiThunk";
@@ -16,11 +16,10 @@ function TodoListPage() {
   const timerId = useRef<ReturnType<typeof setInterval>>(0);
 
   const updateDataTasks = async () => {
-    await dispatch(fetchTodosByFilter(tab))
+    await dispatch(fetchTodosByFilter(tab.data ?? "all"))
   }
 
   useEffect(() => {
-
     updateDataTasks()
 
     timerId.current = setInterval(updateDataTasks, delay)
@@ -35,7 +34,7 @@ function TodoListPage() {
     <Flex vertical>
 
       <AddFieldForm />
-      <Tabs />
+      <TabPanel />
 
       {listStatus.isLoading && !data && <Spin size="large" />}
       {listStatus.hasError && <Alert

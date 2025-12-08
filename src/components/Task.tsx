@@ -24,51 +24,47 @@ const Task = memo(({ todo }: Props) => {
 
   const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
     api[type]({
-      message: 'Ошибка!',
+      message: 'Уведомление!',
       description:
         `${error}`,
     });
   };
 
-  function onActiveEditStateTask() {
+  const onActiveEditStateTask = () => {
     setEdit(true)
   }
 
-  function onCancelEditStateTask() {
+  const onCancelEditStateTask = () => {
     setEdit(false)
   }
 
-  async function onDeleteTask() {
+  const onDeleteTask = async () => {
     try {
-      await dispatch(fetchTodosByFilter(tab))
       await dispatch(deleteTodosTask({ id }))
-    } catch (error) {
-      openNotificationWithIcon('error', error)
-      throw new Error(`Ошибка при удалении задачи:\n${error}`)
+    } catch {
+      openNotificationWithIcon('error', "Произошла ошибка при удалении задачи!")
     }
-
   }
 
   const onSaveEditTask: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
       await dispatch(updateTodosTaskState({ id, title }))
-      await dispatch(fetchTodosByFilter(tab))
+      await dispatch(fetchTodosByFilter(tab.data ?? "all"))
       setEdit(false)
-    } catch (error) {
-      openNotificationWithIcon('error', error)
-      throw new Error(`Ошибка при обновлении заголовка задачи:\n${error}`)
+    } catch {
+      openNotificationWithIcon('error', "Произошла ошибка при обновлении заголовка задачи")
     }
   };
 
-  async function onCompletedTask(event: { target: { checked: boolean; }; }) {
+  const onCompletedTask = async (event: { target: { checked: boolean; }; }) => {
     try {
       await dispatch(updateTodosTaskState({ id, isDone: event.target.checked }))
-      await dispatch(fetchTodosByFilter(tab))
-    } catch (error) {
-      openNotificationWithIcon('error', error)
-      throw new Error(`Ошибка при обновлении готовности задачи:\n${error}`)
+      await dispatch(fetchTodosByFilter(tab.data ?? "all"))
+    } catch {
+      openNotificationWithIcon('error', "Произошла ошибка при обновлении готовности задачи:")
     }
   }
+
 
   return (
     <List.Item key={id}>

@@ -47,6 +47,26 @@ export const initAsyncParticle = <T>(
   status: "idle",
 });
 
+export const resetAllFieldState = <
+  TState extends Record<
+    string,
+    {
+      status: string;
+      errorCounter: number;
+      data: unknown;
+      error: unknown;
+    }
+  >
+>(
+  state: Draft<TState>,
+  key: keyof TState
+) => {
+  state[String(key)].status = "idle";
+  state[String(key)].data = null;
+  state[String(key)].error = null;
+  state[String(key)].errorCounter = 0;
+};
+
 export const addAsyncBuilderCases = <
   TState extends Record<
     string,

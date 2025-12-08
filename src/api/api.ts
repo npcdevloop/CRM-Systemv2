@@ -9,12 +9,12 @@ import axios from "axios";
 import { logOut, setAuth } from "../store/auth/Slices/slice";
 import type { Profile, Token } from "../types/interface_user";
 import { getAccessToken, setAccessToken } from "../utils/auth";
-import type { State } from "../store";
+import type { AppDispatch, AppStore } from "../store";
 
-let store: State;
+let dispatch: AppDispatch;
 
-export const injectStore = (_store: State) => {
-  store = _store;
+export const injectStore = (_store: AppStore) => {
+  dispatch = _store.dispatch;
 };
 
 const axiosInstance = axios.create({
@@ -43,7 +43,7 @@ axiosInstance.interceptors.request.use(async (config) => {
     } catch (error) {
       localStorage.removeItem("refreshToken");
       await setAccessToken("");
-      store.dispatch(logOut());
+      dispatch(logOut());
       window.location.href = "/auth";
       throw new Error(`Не удалось авторизовать пользователя: ${error}`);
     } finally {
@@ -72,6 +72,10 @@ axiosInstance.interceptors.response.use(
       throw Error("Токен обновления истек!");
     }
 
+    if (error.response.status == 401 && error.config.url === "/auth/signin") {
+      throw error;
+    }
+
     if (error.response.status == 401 && error.config && !isRefreshResponse) {
       isRefreshResponse = true;
       try {
@@ -81,13 +85,13 @@ axiosInstance.interceptors.response.use(
         );
         localStorage.setItem("refreshToken", refreshToken);
         await setAccessToken(accessToken);
-        store.dispatch(setAuth(true));
+        dispatch(setAuth(true));
 
         return axiosInstance.request(originalRequest);
       } catch (error) {
         localStorage.removeItem("refreshToken");
         await setAccessToken("");
-        store.dispatch(logOut());
+        dispatch(logOut());
         window.location.href = "/auth";
         throw new Error(`Не удалось авторизовать пользователя: ${error}`);
       } finally {
@@ -109,9 +113,6 @@ export async function loadTasksByFilter(
     })
     .then((response) => {
       return response.data;
-    })
-    .catch((error) => {
-      throw new Error(`Ошибка при фильтрации задач:\n${error}`);
     });
 }
 
@@ -123,9 +124,6 @@ export async function createTask(title: string): Promise<Todo> {
     })
     .then(({ data }) => {
       return data;
-    })
-    .catch((error) => {
-      throw new Error(`Ошибка при создании задачи:\n${error}`);
     });
 }
 
@@ -133,34 +131,14 @@ export async function updateTaskState(
   id: number,
   { title, isDone }: TodoRequest
 ): Promise<void> {
-  await axiosInstance
-    .put(
-      `/todos/${id}`,
-      {
-        title,
-        isDone,
-      },
-      {
-        params: {
-          id,
-        },
-      }
-    )
-    .catch((error) => {
-      throw new Error(`Ошибка при обновлении состояния задачи:\n${error}`);
-    });
+  await axiosInstance.put(`/todos/${id}`, {
+    title,
+    isDone,
+  });
 }
 
 export async function deleteTask(id: number): Promise<void> {
-  await axiosInstance
-    .delete(`/todos/${id}`, {
-      params: {
-        id,
-      },
-    })
-    .catch((error) => {
-      throw new Error(`Ошибка при удалении задачи:\n${error}`);
-    });
+  await axiosInstance.delete(`/todos/${id}`);
 }
 
 export async function registrationUser(
@@ -170,17 +148,13 @@ export async function registrationUser(
   phoneNumber: string,
   username: string
 ): Promise<void> {
-  await axiosInstance
-    .post("/auth/signup", {
-      email,
-      login,
-      password,
-      phoneNumber,
-      username,
-    })
-    .catch((error) => {
-      throw new Error(`Ошибка при регистрации:\n${error}`);
-    });
+  await axiosInstance.post("/auth/signup", {
+    email,
+    login,
+    password,
+    phoneNumber,
+    username,
+  });
 }
 
 export async function authUser(
@@ -194,16 +168,11 @@ export async function authUser(
     })
     .then(({ data }) => {
       return data;
-    })
-    .catch((error) => {
-      throw new Error(`Ошибка при авторизации:\n${error}`);
     });
 }
 
 export async function logoutUser(): Promise<void> {
-  await axiosInstance.post("/user/logout").catch((error) => {
-    throw new Error(`Ошибка при выходе из системы:\n${error}`);
-  });
+  await axiosInstance.post("/user/logout");
 }
 
 export async function refreshAccessToken(
@@ -215,19 +184,11 @@ export async function refreshAccessToken(
     })
     .then(({ data }) => {
       return data;
-    })
-    .catch((error) => {
-      throw new Error(`Ошибка при обновлении ключа доступа:\n${error}`);
     });
 }
 
 export async function loadUserProfile(): Promise<Profile> {
-  return await axiosInstance
-    .get("/user/profile")
-    .then(({ data }) => {
-      return data;
-    })
-    .catch((error) => {
-      throw new Error(`Ошибка при загрузке данных профиля:\n${error}`);
-    });
+  return await axiosInstance.get("/user/profile").then(({ data }) => {
+    return data;
+  });
 }

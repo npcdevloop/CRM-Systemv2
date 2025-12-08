@@ -5,13 +5,10 @@ import { memo } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectTodosFull } from "../store/todo/selectors";
 import { setTab } from "../store/todo/Slices/slice";
-
-
+const filter = ['all', 'completed', 'inWork'] as const;
 
 
 function isFilter(key: unknown): key is Filter {
-  const filter = ['all', 'completed', 'inWork'] as const;
-
   if (typeof key !== 'string') {
     return false;
   }
@@ -19,7 +16,7 @@ function isFilter(key: unknown): key is Filter {
   return (filter as readonly string[]).includes(key);;
 }
 
-const Tab = memo(function Tab() {
+const TabPanel = memo(function TabPanel() {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectTodosFull)
   const { all, inWork, completed } = data?.info || { all: 0, inWork: 0, completed: 0 }
@@ -52,4 +49,4 @@ const Tab = memo(function Tab() {
   );
 }
 )
-export default Tab;
+export default TabPanel;

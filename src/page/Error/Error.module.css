@@ -28,11 +28,6 @@
   transform-origin: 310px 150px;
 }
 
-.olhos {
-  animation: olhos 2s alternate infinite;
-  transform-origin: center;
-}
-
 @keyframes scales {
   from {
     transform: scale(0.98)
@@ -92,23 +87,6 @@
   stroke-dasharray: 300;
   stroke-dashoffset: 300;
   animation: dash 4s alternate infinite;
-}
-
-@keyframes dash {
-
-  0%,
-  30% {
-    fill: 4B4B62;
-    stroke-dashoffset: 0;
-  }
-
-  80%,
-  100% {
-    fill: transparent;
-    stroke-dashoffset: -200;
-  }
-
-
 }
 
 .goToHome {

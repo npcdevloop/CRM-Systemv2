@@ -1,5 +1,3 @@
-import type { IAsyncParticle } from "../store/utils";
-
 export interface TodoRequest {
   title?: string;
   isDone?: boolean;
@@ -26,6 +24,6 @@ export interface MetaResponse<T, N> {
   };
 }
 
-export type Filter = "all" | "completed" | "inWork" | IAsyncParticle<Filter>;
+export type Filter = "all" | "completed" | "inWork";
 
 export type NotificationType = "success" | "info" | "warning" | "error";

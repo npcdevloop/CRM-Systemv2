@@ -17,29 +17,26 @@ const AddFieldForm = memo(function AddFieldForm() {
 
   const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
     api[type]({
-      message: 'Ошибка!',
+      message: 'Уведомление!',
       description:
         `${error}`,
     });
   };
 
-  const onFinish: FormProps<FieldType>['onFinish'] = async ({ title }) => {
+  const onCreateTask: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
       await dispatch(createTodosTask({ title }))
-      await dispatch(fetchTodosByFilter(tab))
-    } catch (error) {
-      openNotificationWithIcon('error', error)
-      throw new Error(`Ошибка при создании задачи:\n${error}`)
+      await dispatch(fetchTodosByFilter(tab.data ?? "all"))
+    } catch {
+      openNotificationWithIcon('error', "Ошибка при создании задачи!")
     }
   };
 
   return (
 
     <Form
-      method={"POST"}
       name="title"
-      onFinish={onFinish}
-      variant="underlined"
+      onFinish={onCreateTask}
       style={{ width: "100%", marginBottom: 0 }}
     >
       {contextHolder}

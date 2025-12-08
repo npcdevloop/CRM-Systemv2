@@ -16,6 +16,16 @@ const todoSlice = createSlice({
       const tab = action.payload;
       state.tab = tab;
     },
+    replaceTodosData(state, action) {
+      const taskPayload = action.payload;
+      if (!state.todos.data?.data) {
+        return;
+      }
+
+      state.todos.data.data = state.todos.data.data.filter(
+        (task) => task.id !== taskPayload
+      );
+    },
   },
   extraReducers: (builder) => {
     addAsyncBuilderCases(builder, fetchTodosByFilter, "todos");
@@ -29,6 +39,6 @@ const todoSlice = createSlice({
   },
 });
 
-export const { setTab } = todoSlice.actions;
+export const { setTab, replaceTodosData } = todoSlice.actions;
 
 export default todoSlice.reducer;

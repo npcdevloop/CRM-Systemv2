@@ -3,12 +3,11 @@ import ErrorPage from "./page/Error/Error";
 import TodoListPage from "./page/TodoListPage";
 import ProfilePage from "./page/ProfilePage";
 import LayoutPage from "./page/LayoutPage";
-import UsersPage from "./page/UsersPage";
 import AuthPage from "./page/AuthPage";
 
 const router = createBrowserRouter([
   {
-    path: '',
+    path: '/',
     element: <LayoutPage />,
     errorElement: <ErrorPage />,
     children: [
@@ -20,15 +19,15 @@ const router = createBrowserRouter([
         path: 'profile',
         element: <ProfilePage />,
       },
-      {
-        path: 'users',
-        element: <UsersPage />,
-      },
     ]
   },
   {
     path: 'auth',
     element: <AuthPage />,
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
   },
 ])
 
