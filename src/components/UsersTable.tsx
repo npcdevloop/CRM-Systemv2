@@ -269,7 +269,7 @@ function UsersTable() {
 
 
 
-  const onFilterColumn: TableProps<Profile>['onChange'] = (pagination, filters, sorter) => {
+  const onFilterColumn: TableProps<Profile>['onChange'] = (_, filters, sorter) => {
     if (!Array.isArray(filters) && filters.isBlocked) {
       const value = filters.isBlocked
       const isBlock = (value[0] === 'all') ? undefined : value[0].valueOf()
