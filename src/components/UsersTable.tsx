@@ -150,11 +150,11 @@ function UsersTable() {
         },
         {
           text: 'Только заблокированные пользователи',
-          value: false,
+          value: true,
         },
         {
           text: 'Только активные пользователи',
-          value: true,
+          value: false,
         },
       ],
       defaultFilteredValue: ['all'],
