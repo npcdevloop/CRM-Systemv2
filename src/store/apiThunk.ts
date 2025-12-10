@@ -9,6 +9,13 @@ import {
   authUser,
   logoutUser,
   loadUserProfile,
+  loadUsers,
+  loadUser,
+  updateUserRights,
+  updateUserData,
+  blockUser,
+  unblockUser,
+  deleteUser,
 } from "../api/api";
 import type {
   Filter,
@@ -18,15 +25,31 @@ import type {
   TodoRequest,
 } from "../types/interface";
 import type {
+  User,
+  MetaResponse as MetaResponseUser,
+  UserFilters,
+  UserRolesRequest,
+  UserRequest,
+} from "../types/interface_admin";
+import type {
   AuthData,
   Profile,
   Token,
   UserRegistration,
 } from "../types/interface_user";
-import { replaceTodosData } from "./todo/Slices/slice";
+import { replaceOneDataFiled } from "./admin/Slices/slice";
 import { logOut } from "./auth/Slices/slice";
+import { replaceTodosData } from "./todo/Slices/slice";
 
 interface TodoUpdateParams extends TodoRequest {
+  id: number;
+}
+
+interface UpdateUserRightsParams extends UserRolesRequest {
+  id: number;
+}
+
+interface UpdateUserDataAdminParams extends UserRequest {
   id: number;
 }
 
@@ -182,6 +205,162 @@ export const loginUserAuth: TSliceMethod<Token, AuthData> = createAsyncThunk<
       const message = e instanceof Error ? e.message : String(e);
       return rejectWithValue({
         errorMessage: message || "Произошла ошибка при авторизации!",
+      });
+    }
+  }
+);
+
+// -------------------------------------------------------------------------- //
+export const fetchUsers: TSliceMethod<
+  MetaResponseUser<User>,
+  UserFilters
+> = createAsyncThunk<
+  MetaResponseUser<User>,
+  UserFilters,
+  { rejectValue: IErrorData }
+>(
+  "todos/fetchUsers",
+
+  async (params, { rejectWithValue }) => {
+    try {
+      const { search, sortBy, sortOrder, isBlocked, limit, page } = params;
+      const response = await loadUsers({
+        search,
+        sortBy,
+        sortOrder,
+        isBlocked,
+        limit,
+        page,
+      });
+      return response;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return rejectWithValue({
+        errorMessage: message || "Произошла ошибка при загрузке пользователей!",
+      });
+    }
+  }
+);
+
+export const fetchUser: TSliceMethod<User, number> = createAsyncThunk<
+  User,
+  number,
+  { rejectValue: IErrorData }
+>(
+  "todos/fetchUser",
+
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await loadUser(id);
+      return response;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return rejectWithValue({
+        errorMessage: message || "Произошла ошибка при загрузке пользователя!",
+      });
+    }
+  }
+);
+
+export const updateUserRightsAdmin: TSliceMethod<void, UpdateUserRightsParams> =
+  createAsyncThunk<void, UpdateUserRightsParams, { rejectValue: IErrorData }>(
+    "todos/updateUserRightsAdmin",
+
+    async (params, { rejectWithValue, dispatch }) => {
+      try {
+        const { id, roles } = params;
+        const newUserRights = await updateUserRights(id, { roles });
+        dispatch(replaceOneDataFiled(newUserRights));
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        return rejectWithValue({
+          errorMessage:
+            message || "Произошла ошибка при обновлении прав пользователя!",
+        });
+      }
+    }
+  );
+
+export const updateUserDataAdmin: TSliceMethod<
+  void,
+  UpdateUserDataAdminParams
+> = createAsyncThunk<
+  void,
+  UpdateUserDataAdminParams,
+  { rejectValue: IErrorData }
+>(
+  "todos/updateUserDataAdmin",
+
+  async (params, { rejectWithValue, dispatch }) => {
+    try {
+      const { id, username, email, phoneNumber } = params;
+      const user = await updateUserData(id, {
+        username,
+        email,
+        phoneNumber,
+      });
+      dispatch(replaceOneDataFiled(user));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return rejectWithValue({
+        errorMessage:
+          message || "Произошла ошибка при обновление данных пользователя!",
+      });
+    }
+  }
+);
+
+export const blockUserAdmin: TSliceMethod<User, number> = createAsyncThunk<
+  User,
+  number,
+  { rejectValue: IErrorData }
+>("todos/blockUserAdmin", async (id, { rejectWithValue }) => {
+  try {
+    const response = await blockUser(id);
+    return response;
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    return rejectWithValue({
+      errorMessage: message || "Произошла ошибка при блокировке пользователя!",
+    });
+  }
+});
+
+export const unblockUserAdmin: TSliceMethod<User, number> = createAsyncThunk<
+  User,
+  number,
+  { rejectValue: IErrorData }
+>(
+  "todos/unblockUserAdmin",
+
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await unblockUser(id);
+      return response;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return rejectWithValue({
+        errorMessage:
+          message || "Произошла ошибка при разблокировке пользователя!",
+      });
+    }
+  }
+);
+
+export const deleteUserAdmin: TSliceMethod<void, number> = createAsyncThunk<
+  void,
+  number,
+  { rejectValue: IErrorData }
+>(
+  "todos/deleteUserAdmin",
+
+  async (id, { rejectWithValue }) => {
+    try {
+      await deleteUser(id);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return rejectWithValue({
+        errorMessage: message || "Произошла ошибка при удалении пользователя!",
       });
     }
   }

@@ -1,6 +1,20 @@
 import type { Filter, MetaResponse, Todo, TodoInfo } from "../types/interface";
 import type { Profile } from "../types/interface_user";
 import { initAsyncParticle } from "./utils";
+import type {
+  User,
+  MetaResponse as MetaResponseUser,
+} from "../types/interface_admin";
+
+export const initialStateAdmin = {
+  usersRequest: initAsyncParticle<MetaResponseUser<User>>(),
+  userRequest: initAsyncParticle<User>(),
+  updateUserRightsRequest: initAsyncParticle<User>(),
+  updateUserDataRequest: initAsyncParticle<User>(),
+  blockUserRequest: initAsyncParticle<User>(),
+  unblockUserRequest: initAsyncParticle<User>(),
+  deleteUserRequest: initAsyncParticle<void>(),
+};
 
 export const initialStateUser = {
   profileRequest: initAsyncParticle<Profile>(),

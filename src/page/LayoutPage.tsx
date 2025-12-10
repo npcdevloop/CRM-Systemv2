@@ -6,18 +6,17 @@ import { LogoutOutlined, UnorderedListOutlined, UserOutlined } from "@ant-design
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import type { MenuInfo } from "rc-menu/lib/interface";
 import type { NotificationType } from "../types/interface";
+import { selectProfileUser } from "../store/auth/selectors";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUserAuth } from "../store/apiThunk";
-import { useAppDispatch } from "../store/hooks";
-
 const { Content, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
-
-function createItem(
+const createItem = (
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
   children?: MenuItem[],
-): MenuItem {
+): MenuItem => {
   return {
     key,
     icon,
@@ -26,7 +25,16 @@ function createItem(
   } as MenuItem;
 }
 
+
+
 const items: MenuItem[] = [
+  createItem('Список задач', '/', <UnorderedListOutlined />),
+  createItem('Профиль', '/profile', <UserOutlined />),
+  createItem('Пользователи', '/users', <UserOutlined />),
+  createItem('Выход', '/logout', <LogoutOutlined />),
+];
+
+const userItems: MenuItem[] = [
   createItem('Список задач', '/', <UnorderedListOutlined />),
   createItem('Профиль', '/profile', <UserOutlined />),
   createItem('Выход', '/logout', <LogoutOutlined />),
@@ -34,10 +42,13 @@ const items: MenuItem[] = [
 
 
 function LayoutPage() {
+  const dispatch = useAppDispatch()
+  const response = useAppSelector(selectProfileUser)
+  const roles = response?.data?.roles
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const navigate = useNavigate();
   const { pathname } = useLocation()
-  const dispatch = useAppDispatch()
+
   const [api, contextHolder] = notification.useNotification();
 
   const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
@@ -47,6 +58,7 @@ function LayoutPage() {
         `${error}`,
     });
   };
+
 
   const onSelectItemMenu = async ({ key, domEvent }: MenuInfo) => {
     if (key === '/logout') {
@@ -61,7 +73,6 @@ function LayoutPage() {
         openNotificationWithIcon('error', `Что-то пошло не так! ${domEvent.target.textContent} оказался недоступен!`)
       }
     } else {
-
       navigate(key)
     }
   }
@@ -77,7 +88,11 @@ function LayoutPage() {
           theme="dark"
           defaultSelectedKeys={pathname !== '/' ? [pathname] : ['/']}
           mode="inline"
-          items={items}
+          items={
+            (!roles?.includes('ADMIN') || !roles?.includes('MODERATOR')) ?
+              userItems
+              :
+              items}
           onClick={onSelectItemMenu}
         />
       </Sider>

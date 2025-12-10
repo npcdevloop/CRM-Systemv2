@@ -10,6 +10,13 @@ import { logOut, setAuth } from "../store/auth/Slices/slice";
 import type { Profile, Token } from "../types/interface_user";
 import { getAccessToken, setAccessToken } from "../utils/auth";
 import type { AppDispatch, AppStore } from "../store";
+import type {
+  User,
+  UserFilters,
+  MetaResponse as MetaResponseUser,
+  UserRolesRequest,
+  UserRequest,
+} from "../types/interface_admin";
 
 let dispatch: AppDispatch;
 
@@ -29,6 +36,7 @@ axiosInstance.interceptors.request.use(async (config) => {
   if (config.url === "/auth/signin") {
     return config;
   }
+
   if (config.url === "/todos" && !accessToken && !isRefreshRequest) {
     isRefreshRequest = true;
     try {
@@ -37,12 +45,12 @@ axiosInstance.interceptors.request.use(async (config) => {
         refreshTokenItem
       );
       localStorage.setItem("refreshToken", refreshToken);
-      await setAccessToken(accessToken);
+      setAccessToken(accessToken);
       config.headers.Authorization = `Bearer ${accessToken}`;
       return config;
     } catch (error) {
       localStorage.removeItem("refreshToken");
-      await setAccessToken("");
+      setAccessToken("");
       dispatch(logOut());
       window.location.href = "/auth";
       throw new Error(`Не удалось авторизовать пользователя: ${error}`);
@@ -73,7 +81,7 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response.status == 401 && error.config.url === "/auth/signin") {
-      throw error;
+      throw new Error(`Не удалось авторизовать пользователя!`);
     }
 
     if (error.response.status == 401 && error.config && !isRefreshResponse) {
@@ -84,16 +92,15 @@ axiosInstance.interceptors.response.use(
           refreshTokenItem
         );
         localStorage.setItem("refreshToken", refreshToken);
-        await setAccessToken(accessToken);
+        setAccessToken(accessToken);
         dispatch(setAuth(true));
-
         return axiosInstance.request(originalRequest);
-      } catch (error) {
+      } catch {
         localStorage.removeItem("refreshToken");
-        await setAccessToken("");
+        setAccessToken("");
         dispatch(logOut());
         window.location.href = "/auth";
-        throw new Error(`Не удалось авторизовать пользователя: ${error}`);
+        throw new Error(`Не удалось авторизовать пользователя!`);
       } finally {
         isRefreshResponse = false;
       }
@@ -191,4 +198,82 @@ export async function loadUserProfile(): Promise<Profile> {
   return await axiosInstance.get("/user/profile").then(({ data }) => {
     return data;
   });
+}
+
+export async function loadUsers({
+  search,
+  sortBy,
+  sortOrder,
+  isBlocked,
+  limit,
+  page,
+}: UserFilters): Promise<MetaResponseUser<User>> {
+  return await axiosInstance
+    .get("/admin/users", {
+      params: {
+        search,
+        sortBy,
+        sortOrder,
+        isBlocked,
+        limit,
+        page,
+      },
+    })
+    .then(({ data }) => {
+      return data;
+    });
+}
+
+export async function loadUser(id: number): Promise<User> {
+  return await axiosInstance.get(`/admin/users/${id}`).then(({ data }) => {
+    return data;
+  });
+}
+
+export async function updateUserRights(
+  id: number,
+  { roles }: UserRolesRequest
+): Promise<User> {
+  return await axiosInstance
+    .post(`/admin/users/${id}/rights`, {
+      roles,
+    })
+    .then(({ data }) => {
+      return data;
+    });
+}
+
+export async function updateUserData(
+  id: number,
+  { username, email, phoneNumber }: UserRequest
+): Promise<User> {
+  return await axiosInstance
+    .put(`/admin/users/${id}`, {
+      username,
+      email,
+      phoneNumber,
+    })
+    .then(({ data }) => {
+      return data;
+    });
+}
+
+export async function blockUser(id: number): Promise<User> {
+  return await axiosInstance
+    .post(`/admin/users/${id}/block`)
+    .then(({ data }) => {
+      return data;
+    });
+}
+
+export async function unblockUser(id: number): Promise<User> {
+  return await axiosInstance
+    .post(`/admin/users/${id}/unblock`)
+    .then(({ data }) => {
+      return data;
+    });
+}
+
+export async function deleteUser(id: number): Promise<void> {
+  await axiosInstance.delete(`/admin/users/${id}`);
 }

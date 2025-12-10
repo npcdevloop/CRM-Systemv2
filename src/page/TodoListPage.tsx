@@ -6,7 +6,7 @@ import AddFieldForm from "../components/AddFieldForm";
 import TabPanel from "../components/TabPanel";
 import { selectTab, selectTodosFull } from "../store/todo/selectors";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchTodosByFilter } from "../store/apiThunk";
+import { fetchTodosByFilter, loadProfileUserAuth } from "../store/apiThunk";
 
 function TodoListPage() {
   const dispatch = useAppDispatch();
@@ -19,7 +19,12 @@ function TodoListPage() {
     await dispatch(fetchTodosByFilter(tab.data ?? "all"))
   }
 
+  const loadProfileData = async () => {
+    dispatch(loadProfileUserAuth())
+  }
+
   useEffect(() => {
+    loadProfileData()
     updateDataTasks()
 
     timerId.current = setInterval(updateDataTasks, delay)

@@ -61,12 +61,13 @@ function AuthForm() {
   };
 
   const isRegister = searchParams.get('mode') === 'signup'
-  const phoneMask = '+0(000)000-00-00';
+  const phoneMask = '+00000000000';
 
   const onFinish: FormProps<UserRegistration>['onFinish'] = async ({ login, username, email, phoneNumber, password }) => {
     try {
 
       if (isRegister) {
+
         try {
           await registrationUser(email, login, password, phoneNumber, username)
           openNotificationWithIcon('success', 'Регистрация прошла успешно! Авторизируйтесь!', true)
@@ -78,11 +79,11 @@ function AuthForm() {
             } else {
               openNotificationWithIcon('error', `Ошибка при регистрации! Что-то пошло не так!`, true)
             }
-
           }
-
         }
+
       } else {
+
         try {
           const { refreshToken, accessToken } = await authUser(login, password)
           openNotificationWithIcon('success', 'Авторизация прошла успешно!', true)
@@ -96,7 +97,6 @@ function AuthForm() {
               openNotificationWithIcon('error', `Ошибка при авторизации! Неверно введены данные!`, true)
             }
           }
-
         }
 
       }
@@ -111,8 +111,6 @@ function AuthForm() {
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
     openNotificationWithIcon('error', `Произошла ошибка при ${isRegister ? 'регистрации' : 'авторизации'}!`, true)
   };
-
-
 
   return (
     <>

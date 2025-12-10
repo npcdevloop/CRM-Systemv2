@@ -14,7 +14,7 @@ const todoSlice = createSlice({
   reducers: {
     setTab: (state, action) => {
       const tab = action.payload;
-      state.tab = tab;
+      state.tab.data = tab;
     },
     replaceTodosData(state, action) {
       const taskPayload = action.payload;
