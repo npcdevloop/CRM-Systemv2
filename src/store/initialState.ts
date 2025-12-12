@@ -1,5 +1,5 @@
-import type { Filter, MetaResponse, Todo, TodoInfo } from "../types/interface";
-import type { Profile } from "../types/interface_user";
+import type { Filter, MetaResponse, Todo, TodoInfo } from "../types/todo";
+import type { Profile } from "../types/user";
 import { initAsyncParticle } from "./utils";
 
 export const initialStateUser = {

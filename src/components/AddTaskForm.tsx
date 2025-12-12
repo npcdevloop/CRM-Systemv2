@@ -4,13 +4,13 @@ import { memo } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { createTodosTask, fetchTodosByFilter } from '../store/apiThunk';
 import { selectTab } from '../store/todo/selectors';
-import type { NotificationType } from '../types/interface';
+import type { NotificationType } from '../types/todo';
 
 type FieldType = {
   title: string;
 };
 
-const AddFieldForm = memo(function AddFieldForm() {
+const AddTaskForm = memo(function AddTaskForm() {
   const dispatch = useAppDispatch();
   const tab = useAppSelector(selectTab)
   const [api, contextHolder] = notification.useNotification();
@@ -75,6 +75,6 @@ const AddFieldForm = memo(function AddFieldForm() {
   );
 }
 )
-export default AddFieldForm;
+export default AddTaskForm;
 
 

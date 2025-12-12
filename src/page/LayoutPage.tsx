@@ -5,7 +5,7 @@ import type { MenuProps } from 'antd';
 import { LogoutOutlined, UnorderedListOutlined, UserOutlined } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import type { MenuInfo } from "rc-menu/lib/interface";
-import type { NotificationType } from "../types/interface";
+import type { NotificationType } from "../types/todo";
 import { logoutUserAuth } from "../store/apiThunk";
 import { useAppDispatch } from "../store/hooks";
 

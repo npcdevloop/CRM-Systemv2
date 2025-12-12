@@ -5,12 +5,7 @@ import {
   getAsyncRequestData,
   type IAsyncParticle,
 } from "../utils";
-import type {
-  Filter,
-  MetaResponse,
-  Todo,
-  TodoInfo,
-} from "../../types/interface";
+import type { Filter, MetaResponse, Todo, TodoInfo } from "../../types/todo";
 
 /*
 https://redux-toolkit.js.org/api/createSelector   --- > createDraftSafeSelector

@@ -4,10 +4,10 @@ import type {
   TodoInfo,
   Todo,
   TodoRequest,
-} from "../types/interface";
+} from "../types/todo";
 import axios from "axios";
 import { logOut, setAuth } from "../store/auth/Slices/slice";
-import type { Profile, Token } from "../types/interface_user";
+import type { Profile, Token } from "../types/user";
 import { getAccessToken, setAccessToken } from "../utils/auth";
 import type { AppDispatch, AppStore } from "../store";
 
@@ -37,12 +37,12 @@ axiosInstance.interceptors.request.use(async (config) => {
         refreshTokenItem
       );
       localStorage.setItem("refreshToken", refreshToken);
-      await setAccessToken(accessToken);
+      setAccessToken(accessToken);
       config.headers.Authorization = `Bearer ${accessToken}`;
       return config;
     } catch (error) {
       localStorage.removeItem("refreshToken");
-      await setAccessToken("");
+      setAccessToken("");
       dispatch(logOut());
       window.location.href = "/auth";
       throw new Error(`Не удалось авторизовать пользователя: ${error}`);
@@ -102,10 +102,10 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export async function loadTasksByFilter(
+export function loadTasksByFilter(
   filter: Filter
 ): Promise<MetaResponse<Todo, TodoInfo>> {
-  return await axiosInstance
+  return axiosInstance
     .get("/todos", {
       params: {
         filter: filter,
@@ -116,8 +116,8 @@ export async function loadTasksByFilter(
     });
 }
 
-export async function createTask(title: string): Promise<Todo> {
-  return await axiosInstance
+export function createTask(title: string): Promise<Todo> {
+  return axiosInstance
     .post("/todos", {
       title: title,
       isDone: false,
@@ -127,28 +127,28 @@ export async function createTask(title: string): Promise<Todo> {
     });
 }
 
-export async function updateTaskState(
+export function updateTaskState(
   id: number,
   { title, isDone }: TodoRequest
-): Promise<void> {
-  await axiosInstance.put(`/todos/${id}`, {
+): void {
+  axiosInstance.put(`/todos/${id}`, {
     title,
     isDone,
   });
 }
 
-export async function deleteTask(id: number): Promise<void> {
-  await axiosInstance.delete(`/todos/${id}`);
+export function deleteTask(id: number): void {
+  axiosInstance.delete(`/todos/${id}`);
 }
 
-export async function registrationUser(
+export function registrationUser(
   email: string,
   login: string,
   password: string,
   phoneNumber: string,
   username: string
-): Promise<void> {
-  await axiosInstance.post("/auth/signup", {
+): void {
+  axiosInstance.post("/auth/signup", {
     email,
     login,
     password,
@@ -157,11 +157,8 @@ export async function registrationUser(
   });
 }
 
-export async function authUser(
-  login: string,
-  password: string
-): Promise<Token> {
-  return await axiosInstance
+export function authUser(login: string, password: string): Promise<Token> {
+  return axiosInstance
     .post("/auth/signin", {
       login,
       password,
@@ -171,14 +168,14 @@ export async function authUser(
     });
 }
 
-export async function logoutUser(): Promise<void> {
-  await axiosInstance.post("/user/logout");
+export function logoutUser(): void {
+  axiosInstance.post("/user/logout");
 }
 
-export async function refreshAccessToken(
+export function refreshAccessToken(
   refreshToken: string | null
 ): Promise<Token> {
-  return await axiosInstance
+  return axiosInstance
     .post("/auth/refresh", {
       refreshToken,
     })
@@ -187,8 +184,8 @@ export async function refreshAccessToken(
     });
 }
 
-export async function loadUserProfile(): Promise<Profile> {
-  return await axiosInstance.get("/user/profile").then(({ data }) => {
+export function loadUserProfile(): Promise<Profile> {
+  return axiosInstance.get("/user/profile").then(({ data }) => {
     return data;
   });
 }

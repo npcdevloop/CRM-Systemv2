@@ -1,4 +1,4 @@
-import type { NotificationType, Todo } from '../types/interface'
+import type { NotificationType, Todo } from '../types/todo'
 import { Button, List, Checkbox, Input, Form, Typography, type FormProps, Flex, notification } from 'antd'
 import { CloseOutlined, DeleteOutlined, FormOutlined, SaveOutlined } from '@ant-design/icons'
 import { useAppDispatch, useAppSelector } from '../store/hooks';

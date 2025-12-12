@@ -5,7 +5,7 @@ import {
   getAsyncRequestData,
   type IAsyncParticle,
 } from "../utils";
-import type { Profile } from "../../types/interface_user";
+import type { Profile } from "../../types/user";
 
 export interface UserState {
   profileRequest: IAsyncParticle<Profile>;

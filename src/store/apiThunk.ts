@@ -16,13 +16,8 @@ import type {
   Todo,
   TodoInfo,
   TodoRequest,
-} from "../types/interface";
-import type {
-  AuthData,
-  Profile,
-  Token,
-  UserRegistration,
-} from "../types/interface_user";
+} from "../types/todo";
+import type { AuthData, Profile, Token, UserRegistration } from "../types/user";
 import { replaceTodosData } from "./todo/Slices/slice";
 import { logOut } from "./auth/Slices/slice";
 
@@ -79,7 +74,7 @@ export const updateTodosTaskState: TSliceMethod<void, TodoUpdateParams> =
     async (params, { rejectWithValue }) => {
       const { id, title, isDone } = params;
       try {
-        await updateTaskState(id, { title, isDone });
+        updateTaskState(id, { title, isDone });
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         return rejectWithValue({
@@ -95,7 +90,7 @@ export const deleteTodosTask: TSliceMethod<void, TodoUpdateParams> =
     async (params, { rejectWithValue, dispatch }) => {
       const { id } = params;
       try {
-        await deleteTask(id);
+        deleteTask(id);
         dispatch(replaceTodosData(id));
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
@@ -155,7 +150,7 @@ export const logoutUserAuth: TSliceMethod<void, void> = createAsyncThunk<
 
   async (_, { rejectWithValue, dispatch }) => {
     try {
-      await logoutUser();
+      logoutUser();
       dispatch(logOut());
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);

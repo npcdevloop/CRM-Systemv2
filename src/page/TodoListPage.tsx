@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import TaskList from "../components/TaskList";
 import { Alert, Flex, Spin } from "antd";
-import AddFieldForm from "../components/AddFieldForm";
+import AddTaskForm from "../components/AddTaskForm";
 import TabPanel from "../components/TabPanel";
 import { selectTab, selectTodosFull } from "../store/todo/selectors";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -33,7 +33,7 @@ function TodoListPage() {
   return (
     <Flex vertical>
 
-      <AddFieldForm />
+      <AddTaskForm />
       <TabPanel />
 
       {listStatus.isLoading && !data && <Spin size="large" />}

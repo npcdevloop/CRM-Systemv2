@@ -1,6 +1,6 @@
 import { Tabs } from "antd";
 import type { TabsProps } from 'antd';
-import type { Filter } from '../types/interface';
+import type { Filter } from '../types/todo';
 import { memo } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectTodosFull } from "../store/todo/selectors";
