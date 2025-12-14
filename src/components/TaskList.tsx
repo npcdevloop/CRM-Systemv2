@@ -13,9 +13,9 @@ function TaskList() {
       itemLayout="horizontal"
       dataSource={todo}
       renderItem={
-        (todo) => (
+        (task) => (
           <Task
-            todo={todo}
+            todo={task}
           />
         )
       }

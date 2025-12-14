@@ -1,19 +1,19 @@
-import { Breadcrumb, Button, Divider, Dropdown, Flex, Input, Switch, theme, Typography, InputNumber, Space, Table, Tag, notification, message, Popconfirm } from "antd";
+import { Breadcrumb, Button, Divider, Dropdown, Flex, Input, Switch, theme, Typography, InputNumber, Space, Table, Tag, message, Popconfirm } from "antd";
 import type { TableColumnsType, InputNumberProps, MenuProps, InputProps, ButtonProps, PopconfirmProps, TableProps } from 'antd';
 import { DeleteOutlined, FilterOutlined, MoreOutlined, SearchOutlined, UserOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
-import type { Profile } from "../types/interface_user";
+import type { Profile } from "../types/user";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectUsersRequest } from "../store/admin/selectors";
 import { blockUserAdmin, deleteUserAdmin, fetchUsers, unblockUserAdmin } from "../store/apiThunk";
-import type { UserFilters } from "../types/interface_admin";
+import type { UserFilters } from "../types/admin";
 import type { MenuItemType } from "antd/es/menu/interface";
 import { deleteUserData, replaceUserData } from "../store/admin/Slices/slice";
 import type { MenuInfo } from "rc-menu/lib/interface";
-import type { NotificationType } from "../types/interface";
 import { selectProfileUser } from "../store/auth/selectors";
+import useNotification from "../hooks/useNotification";
 
-function UsersTable() {
+function UsersTablePage() {
   const dispatch = useAppDispatch()
 
   const usersRequest = useAppSelector(selectUsersRequest)
@@ -26,7 +26,7 @@ function UsersTable() {
   const { token } = useToken();
   const { Text } = Typography;
 
-  const [api, contextHolder] = notification.useNotification();
+  const { contextHolder, openNotificationWithIcon } = useNotification()
   const [messageApi, holder] = message.useMessage();
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [filterParams, setFilterParams] = useState<UserFilters>({
@@ -37,16 +37,6 @@ function UsersTable() {
     limit: undefined,
     page: undefined,
   });
-
-  const openNotificationWithIcon = (type: NotificationType, error: unknown, pauseOnHover: boolean) => {
-    api[type]({
-      message: 'Уведомление!',
-      description:
-        `${error}`,
-      showProgress: true,
-      pauseOnHover,
-    });
-  };
 
   const contentStyle: React.CSSProperties = {
     backgroundColor: token.colorBgElevated,
@@ -267,8 +257,6 @@ function UsersTable() {
     },
   ];
 
-
-
   const onFilterColumn: TableProps<Profile>['onChange'] = (_, filters, sorter) => {
     if (!Array.isArray(filters) && filters.isBlocked) {
       const value = filters.isBlocked
@@ -285,23 +273,23 @@ function UsersTable() {
     }
   };
 
-  const onSwitchChange = async (checked: boolean) => {
+  const onSwitchChange = (checked: boolean) => {
     const sortOrder = checked ? "asc" : "desc";
     setFilterParams({ ...filterParams, sortOrder: sortOrder })
   }
 
-  const onChangeLimitUsers: InputNumberProps['onChange'] = async (value) => {
+  const onChangeLimitUsers: InputNumberProps['onChange'] = (value) => {
     const limitUsersValue = (value === null) ? undefined : Number(value)
     setFilterParams({ ...filterParams, limit: limitUsersValue })
 
   };
 
-  const onChangePage: InputNumberProps['onChange'] = async (value) => {
+  const onChangePage: InputNumberProps['onChange'] = (value) => {
     const pageValue = (value === null) ? undefined : Number(value)
     setFilterParams({ ...filterParams, page: pageValue })
   };
 
-  const onSelectItemMenuFilter: MenuItemType['onClick'] = async (e) => {
+  const onSelectItemMenuFilter: MenuItemType['onClick'] = (e) => {
     if (e.key === filterParams.sortBy) {
       setSelectedKeys([])
       setFilterParams({ ...filterParams, sortBy: undefined })
@@ -326,7 +314,7 @@ function UsersTable() {
   }
 
   const onSelectItemMenuUser = (id: number): MenuItemType['onClick'] => {
-    return async (e: MenuInfo) => {
+    return (e: MenuInfo) => {
       if (e.key === 'profile') {
         try {
           window.open(`/admin/users/${id}`)
@@ -345,22 +333,22 @@ function UsersTable() {
     setFilterParams({ ...filterParams, search: e.target.value })
   }
 
-  const onSearch: ButtonProps['onClick'] = async () => {
-    await updateDataUsers(filterParams)
+  const onSearch: ButtonProps['onClick'] = () => {
+    updateDataUsers(filterParams)
   }
 
   const onBlockUser = async (id: number) => {
     const { payload: user } = await dispatch(blockUserAdmin(id))
-    await dispatch(replaceUserData(user))
+    dispatch(replaceUserData(user))
   }
 
   const onUnBlockUser = async (id: number) => {
     const { payload: user } = await dispatch(unblockUserAdmin(id))
-    await dispatch(replaceUserData(user))
+    dispatch(replaceUserData(user))
   }
 
-  const updateDataUsers = async (params?: UserFilters) => {
-    await dispatch(fetchUsers(params ?? {}))
+  const updateDataUsers = (params?: UserFilters) => {
+    dispatch(fetchUsers(params ?? {}))
   }
 
   useEffect(() => {
@@ -436,4 +424,5 @@ function UsersTable() {
   );
 }
 
-export default UsersTable;
+export default UsersTablePage;
+

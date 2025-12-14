@@ -1,8 +1,8 @@
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import TaskList from "../components/TaskList";
 import { Alert, Flex, Spin } from "antd";
-import AddFieldForm from "../components/AddFieldForm";
+import AddTaskForm from "../components/AddTaskForm";
 import TabPanel from "../components/TabPanel";
 import { selectTab, selectTodosFull } from "../store/todo/selectors";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -11,34 +11,33 @@ import { fetchTodosByFilter, loadProfileUserAuth } from "../store/apiThunk";
 function TodoListPage() {
   const dispatch = useAppDispatch();
   const { data, status: listStatus } = useAppSelector(selectTodosFull)
-  const tab = useAppSelector(selectTab)
+  const filter = useAppSelector(selectTab)
   const delay: number = 5000;
-  const timerId = useRef<ReturnType<typeof setInterval>>(0);
+  const timerId = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const updateDataTasks = async () => {
-    await dispatch(fetchTodosByFilter(tab.data ?? "all"))
-  }
-
-  const loadProfileData = async () => {
-    dispatch(loadProfileUserAuth())
-  }
+  const updateDataTasks = useCallback(() => {
+    dispatch(fetchTodosByFilter(filter.data ?? "all"))
+  }, [dispatch, filter])
 
   useEffect(() => {
-    loadProfileData()
+    dispatch(loadProfileUserAuth())
     updateDataTasks()
 
     timerId.current = setInterval(updateDataTasks, delay)
 
     return () => {
-      clearInterval(timerId.current)
+      if (timerId.current !== null) {
+        clearInterval(timerId.current)
+      }
+
     };
 
-  }, [dispatch, tab])
+  }, [dispatch, updateDataTasks])
 
   return (
     <Flex vertical>
 
-      <AddFieldForm />
+      <AddTaskForm />
       <TabPanel />
 
       {listStatus.isLoading && !data && <Spin size="large" />}

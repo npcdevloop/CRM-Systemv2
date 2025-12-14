@@ -23,21 +23,16 @@ import type {
   Todo,
   TodoInfo,
   TodoRequest,
-} from "../types/interface";
+} from "../types/todo";
 import type {
   User,
   MetaResponse as MetaResponseUser,
   UserFilters,
   UserRolesRequest,
   UserRequest,
-} from "../types/interface_admin";
-import type {
-  AuthData,
-  Profile,
-  Token,
-  UserRegistration,
-} from "../types/interface_user";
-import { replaceOneDataFiled } from "./admin/Slices/slice";
+} from "../types/admin";
+import type { AuthData, Profile, Token, UserRegistration } from "../types/user";
+import { replaceOneDataField } from "./admin/Slices/slice";
 import { logOut } from "./auth/Slices/slice";
 import { replaceTodosData } from "./todo/Slices/slice";
 
@@ -219,7 +214,7 @@ export const fetchUsers: TSliceMethod<
   UserFilters,
   { rejectValue: IErrorData }
 >(
-  "todos/fetchUsers",
+  "admin/fetchUsers",
 
   async (params, { rejectWithValue }) => {
     try {
@@ -247,7 +242,7 @@ export const fetchUser: TSliceMethod<User, number> = createAsyncThunk<
   number,
   { rejectValue: IErrorData }
 >(
-  "todos/fetchUser",
+  "admin/fetchUser",
 
   async (id, { rejectWithValue }) => {
     try {
@@ -264,13 +259,13 @@ export const fetchUser: TSliceMethod<User, number> = createAsyncThunk<
 
 export const updateUserRightsAdmin: TSliceMethod<void, UpdateUserRightsParams> =
   createAsyncThunk<void, UpdateUserRightsParams, { rejectValue: IErrorData }>(
-    "todos/updateUserRightsAdmin",
+    "admin/updateUserRightsAdmin",
 
     async (params, { rejectWithValue, dispatch }) => {
       try {
         const { id, roles } = params;
         const newUserRights = await updateUserRights(id, { roles });
-        dispatch(replaceOneDataFiled(newUserRights));
+        dispatch(replaceOneDataField(newUserRights));
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         return rejectWithValue({
@@ -289,7 +284,7 @@ export const updateUserDataAdmin: TSliceMethod<
   UpdateUserDataAdminParams,
   { rejectValue: IErrorData }
 >(
-  "todos/updateUserDataAdmin",
+  "admin/updateUserDataAdmin",
 
   async (params, { rejectWithValue, dispatch }) => {
     try {
@@ -299,7 +294,7 @@ export const updateUserDataAdmin: TSliceMethod<
         email,
         phoneNumber,
       });
-      dispatch(replaceOneDataFiled(user));
+      dispatch(replaceOneDataField(user));
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       return rejectWithValue({
@@ -314,7 +309,7 @@ export const blockUserAdmin: TSliceMethod<User, number> = createAsyncThunk<
   User,
   number,
   { rejectValue: IErrorData }
->("todos/blockUserAdmin", async (id, { rejectWithValue }) => {
+>("admin/blockUserAdmin", async (id, { rejectWithValue }) => {
   try {
     const response = await blockUser(id);
     return response;
@@ -331,7 +326,7 @@ export const unblockUserAdmin: TSliceMethod<User, number> = createAsyncThunk<
   number,
   { rejectValue: IErrorData }
 >(
-  "todos/unblockUserAdmin",
+  "admin/unblockUserAdmin",
 
   async (id, { rejectWithValue }) => {
     try {
@@ -352,7 +347,7 @@ export const deleteUserAdmin: TSliceMethod<void, number> = createAsyncThunk<
   number,
   { rejectValue: IErrorData }
 >(
-  "todos/deleteUserAdmin",
+  "admin/deleteUserAdmin",
 
   async (id, { rejectWithValue }) => {
     try {

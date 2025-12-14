@@ -1,14 +1,7 @@
 import { createDraftSafeSelector } from "@reduxjs/toolkit";
 import type { RootState } from "..";
-import {
-  getAsyncDataStatus,
-  getAsyncRequestData,
-  type IAsyncParticle,
-} from "../utils";
-import type {
-  User,
-  MetaResponse as MetaResponseUser,
-} from "../../types/interface_admin";
+import { getAsyncRequestData, type IAsyncParticle } from "../utils";
+import type { User, MetaResponse as MetaResponseUser } from "../../types/admin";
 
 export interface AdminState {
   usersRequest: IAsyncParticle<MetaResponseUser<User>>;
@@ -54,7 +47,7 @@ export const selectUnblockUserRequest = createDraftSafeSelector(
 
 export const selectDeleteUserRequest = createDraftSafeSelector(
   selectAdminStore,
-  (state) => getAsyncDataStatus(state.deleteUserRequest)
+  (state) => getAsyncRequestData(state.deleteUserRequest)
 );
 
 /* export const selectProfileUserStatus = createDraftSafeSelector(

@@ -1,14 +1,14 @@
 
 import { useState } from "react";
-import { Layout, Menu, notification } from "antd";
+import { Layout, Menu } from "antd";
 import type { MenuProps } from 'antd';
 import { LogoutOutlined, UnorderedListOutlined, UserOutlined } from "@ant-design/icons";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import type { MenuInfo } from "rc-menu/lib/interface";
-import type { NotificationType } from "../types/interface";
 import { selectProfileUser } from "../store/auth/selectors";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUserAuth } from "../store/apiThunk";
+import useNotification from "../hooks/useNotification";
 const { Content, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 const createItem = (
@@ -48,16 +48,7 @@ function LayoutPage() {
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const navigate = useNavigate();
   const { pathname } = useLocation()
-
-  const [api, contextHolder] = notification.useNotification();
-
-  const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
-    api[type]({
-      message: 'Уведомление!',
-      description:
-        `${error}`,
-    });
-  };
+  const { contextHolder, openNotificationWithIcon } = useNotification()
 
 
   const onSelectItemMenu = async ({ key, domEvent }: MenuInfo) => {
@@ -70,7 +61,7 @@ function LayoutPage() {
         if (!(domEvent.target instanceof HTMLElement)) {
           return;
         }
-        openNotificationWithIcon('error', `Что-то пошло не так! ${domEvent.target.textContent} оказался недоступен!`)
+        openNotificationWithIcon('error', `Что-то пошло не так! ${domEvent.target.textContent} оказался недоступен!`, true)
       }
     } else {
       navigate(key)
@@ -89,10 +80,8 @@ function LayoutPage() {
           defaultSelectedKeys={pathname !== '/' ? [pathname] : ['/']}
           mode="inline"
           items={
-            (!roles?.includes('ADMIN') || !roles?.includes('MODERATOR')) ?
-              userItems
-              :
-              items}
+            (roles?.length === 1 && roles.includes('USER')) ? userItems : items
+          }
           onClick={onSelectItemMenu}
         />
       </Sider>

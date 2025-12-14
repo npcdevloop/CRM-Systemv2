@@ -4,115 +4,25 @@ import type {
   TodoInfo,
   Todo,
   TodoRequest,
-} from "../types/interface";
+} from "../types/todo";
 import axios from "axios";
-import { logOut, setAuth } from "../store/auth/Slices/slice";
-import type { Profile, Token } from "../types/interface_user";
-import { getAccessToken, setAccessToken } from "../utils/auth";
-import type { AppDispatch, AppStore } from "../store";
+import type { Profile, Token } from "../types/user";
 import type {
   User,
   UserFilters,
   MetaResponse as MetaResponseUser,
   UserRolesRequest,
   UserRequest,
-} from "../types/interface_admin";
-
-let dispatch: AppDispatch;
-
-export const injectStore = (_store: AppStore) => {
-  dispatch = _store.dispatch;
-};
+} from "../types/admin";
 
 const axiosInstance = axios.create({
   baseURL: "https://easydev.club/api/v1",
 });
 
-let isRefreshRequest = false;
-
-axiosInstance.interceptors.request.use(async (config) => {
-  const accessToken = getAccessToken();
-
-  if (config.url === "/auth/signin") {
-    return config;
-  }
-
-  if (config.url === "/todos" && !accessToken && !isRefreshRequest) {
-    isRefreshRequest = true;
-    try {
-      const refreshTokenItem = localStorage.getItem("refreshToken");
-      const { accessToken, refreshToken } = await refreshAccessToken(
-        refreshTokenItem
-      );
-      localStorage.setItem("refreshToken", refreshToken);
-      setAccessToken(accessToken);
-      config.headers.Authorization = `Bearer ${accessToken}`;
-      return config;
-    } catch (error) {
-      localStorage.removeItem("refreshToken");
-      setAccessToken("");
-      dispatch(logOut());
-      window.location.href = "/auth";
-      throw new Error(`Не удалось авторизовать пользователя: ${error}`);
-    } finally {
-      isRefreshRequest = false;
-    }
-  }
-
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-    return config;
-  } else {
-    return config;
-  }
-});
-
-let isRefreshResponse = false;
-
-axiosInstance.interceptors.response.use(
-  (config) => {
-    return config;
-  },
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response.status == 401 && error.config.url === "/auth/refresh") {
-      throw Error("Токен обновления истек!");
-    }
-
-    if (error.response.status == 401 && error.config.url === "/auth/signin") {
-      throw new Error(`Не удалось авторизовать пользователя!`);
-    }
-
-    if (error.response.status == 401 && error.config && !isRefreshResponse) {
-      isRefreshResponse = true;
-      try {
-        const refreshTokenItem = localStorage.getItem("refreshToken");
-        const { accessToken, refreshToken } = await refreshAccessToken(
-          refreshTokenItem
-        );
-        localStorage.setItem("refreshToken", refreshToken);
-        setAccessToken(accessToken);
-        dispatch(setAuth(true));
-        return axiosInstance.request(originalRequest);
-      } catch {
-        localStorage.removeItem("refreshToken");
-        setAccessToken("");
-        dispatch(logOut());
-        window.location.href = "/auth";
-        throw new Error(`Не удалось авторизовать пользователя!`);
-      } finally {
-        isRefreshResponse = false;
-      }
-    }
-    throw error;
-  }
-);
-
-export async function loadTasksByFilter(
+export function loadTasksByFilter(
   filter: Filter
 ): Promise<MetaResponse<Todo, TodoInfo>> {
-  return await axiosInstance
+  return axiosInstance
     .get("/todos", {
       params: {
         filter: filter,
@@ -123,8 +33,8 @@ export async function loadTasksByFilter(
     });
 }
 
-export async function createTask(title: string): Promise<Todo> {
-  return await axiosInstance
+export function createTask(title: string): Promise<Todo> {
+  return axiosInstance
     .post("/todos", {
       title: title,
       isDone: false,
@@ -134,28 +44,28 @@ export async function createTask(title: string): Promise<Todo> {
     });
 }
 
-export async function updateTaskState(
+export function updateTaskState(
   id: number,
   { title, isDone }: TodoRequest
-): Promise<void> {
-  await axiosInstance.put(`/todos/${id}`, {
+): void {
+  axiosInstance.put(`/todos/${id}`, {
     title,
     isDone,
   });
 }
 
-export async function deleteTask(id: number): Promise<void> {
-  await axiosInstance.delete(`/todos/${id}`);
+export function deleteTask(id: number): void {
+  axiosInstance.delete(`/todos/${id}`);
 }
 
-export async function registrationUser(
+export function registrationUser(
   email: string,
   login: string,
   password: string,
   phoneNumber: string,
   username: string
-): Promise<void> {
-  await axiosInstance.post("/auth/signup", {
+): void {
+  axiosInstance.post("/auth/signup", {
     email,
     login,
     password,
@@ -164,11 +74,8 @@ export async function registrationUser(
   });
 }
 
-export async function authUser(
-  login: string,
-  password: string
-): Promise<Token> {
-  return await axiosInstance
+export function authUser(login: string, password: string): Promise<Token> {
+  return axiosInstance
     .post("/auth/signin", {
       login,
       password,
@@ -178,14 +85,14 @@ export async function authUser(
     });
 }
 
-export async function logoutUser(): Promise<void> {
-  await axiosInstance.post("/user/logout");
+export function logoutUser(): void {
+  axiosInstance.post("/user/logout");
 }
 
-export async function refreshAccessToken(
+export function refreshAccessToken(
   refreshToken: string | null
 ): Promise<Token> {
-  return await axiosInstance
+  return axiosInstance
     .post("/auth/refresh", {
       refreshToken,
     })
@@ -194,13 +101,13 @@ export async function refreshAccessToken(
     });
 }
 
-export async function loadUserProfile(): Promise<Profile> {
-  return await axiosInstance.get("/user/profile").then(({ data }) => {
+export function loadUserProfile(): Promise<Profile> {
+  return axiosInstance.get("/user/profile").then(({ data }) => {
     return data;
   });
 }
 
-export async function loadUsers({
+export function loadUsers({
   search,
   sortBy,
   sortOrder,
@@ -208,7 +115,7 @@ export async function loadUsers({
   limit,
   page,
 }: UserFilters): Promise<MetaResponseUser<User>> {
-  return await axiosInstance
+  return axiosInstance
     .get("/admin/users", {
       params: {
         search,
@@ -224,17 +131,17 @@ export async function loadUsers({
     });
 }
 
-export async function loadUser(id: number): Promise<User> {
-  return await axiosInstance.get(`/admin/users/${id}`).then(({ data }) => {
+export function loadUser(id: number): Promise<User> {
+  return axiosInstance.get(`/admin/users/${id}`).then(({ data }) => {
     return data;
   });
 }
 
-export async function updateUserRights(
+export function updateUserRights(
   id: number,
   { roles }: UserRolesRequest
 ): Promise<User> {
-  return await axiosInstance
+  return axiosInstance
     .post(`/admin/users/${id}/rights`, {
       roles,
     })
@@ -243,11 +150,11 @@ export async function updateUserRights(
     });
 }
 
-export async function updateUserData(
+export function updateUserData(
   id: number,
   { username, email, phoneNumber }: UserRequest
 ): Promise<User> {
-  return await axiosInstance
+  return axiosInstance
     .put(`/admin/users/${id}`, {
       username,
       email,
@@ -258,22 +165,20 @@ export async function updateUserData(
     });
 }
 
-export async function blockUser(id: number): Promise<User> {
-  return await axiosInstance
-    .post(`/admin/users/${id}/block`)
-    .then(({ data }) => {
-      return data;
-    });
+export function blockUser(id: number): Promise<User> {
+  return axiosInstance.post(`/admin/users/${id}/block`).then(({ data }) => {
+    return data;
+  });
 }
 
-export async function unblockUser(id: number): Promise<User> {
-  return await axiosInstance
-    .post(`/admin/users/${id}/unblock`)
-    .then(({ data }) => {
-      return data;
-    });
+export function unblockUser(id: number): Promise<User> {
+  return axiosInstance.post(`/admin/users/${id}/unblock`).then(({ data }) => {
+    return data;
+  });
 }
 
-export async function deleteUser(id: number): Promise<void> {
-  await axiosInstance.delete(`/admin/users/${id}`);
+export function deleteUser(id: number): void {
+  axiosInstance.delete(`/admin/users/${id}`);
 }
+
+export default axiosInstance;

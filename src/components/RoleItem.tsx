@@ -1,12 +1,12 @@
 import { CloseOutlined, EditOutlined, EyeOutlined, PlusOutlined, RubyOutlined, SaveOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Flex, Form, type FormProps, message, notification, Popconfirm, Tag, theme } from "antd";
-import type { Roles, UserRolesRequest } from "../types/interface_admin";
+import { Button, Dropdown, Flex, Form, type FormProps, message, Popconfirm, Tag, theme } from "antd";
+import type { Roles, UserRolesRequest } from "../types/admin";
 import { useEffect, useState } from "react";
-import type { NotificationType } from "../types/interface";
 import { useAppDispatch } from "../store/hooks";
 import { updateUserRightsAdmin } from "../store/apiThunk";
 import React from "react";
-import type { Role } from "../types/interface_user";
+import type { Role } from "../types/user";
+import useNotification from "../hooks/useNotification";
 
 interface IDescriptionsItem {
   id: number,
@@ -30,18 +30,9 @@ function RoleItem({ rolesServer, id }: IDescriptionsItem) {
   const { token } = useToken();
   const [, holder] = message.useMessage();
   const [edit, setEdit] = useState<boolean>(false);
-  const [api, contextHolder] = notification.useNotification();
   const [roles, setRoles] = useState<Roles[]>(rolesServer)
   const [rights, setRights] = useState<Role>()
-  const openNotificationWithIcon = (type: NotificationType, error: unknown, pauseOnHover: boolean) => {
-    api[type]({
-      message: 'Уведомление!',
-      description:
-        `${error}`,
-      showProgress: true,
-      pauseOnHover,
-    });
-  };
+  const { contextHolder, openNotificationWithIcon } = useNotification()
 
   const contentStyle: React.CSSProperties = {
     backgroundColor: token.colorBgElevated,
@@ -60,9 +51,9 @@ function RoleItem({ rolesServer, id }: IDescriptionsItem) {
     }
   }
 
-  const onAddRightsUser = async (rigths: Role) => {
-    if (isRole(rigths)) {
-      const rol = toRoles(rigths)
+  const onAddRightsUser = (rights: Role) => {
+    if (isRole(rights)) {
+      const rol = toRoles(rights)
       if (!rol) {
         return
       }
@@ -76,7 +67,10 @@ function RoleItem({ rolesServer, id }: IDescriptionsItem) {
     }
   }
 
-  const onDeleteRightsUser = async (rl: Role) => {
+  const onDeleteRightsUser = (rl: Role) => {
+    if (roles.length === 1) {
+      return openNotificationWithIcon("warning", `Нельзя оставить пользователя без статуса!`, true)
+    }
     const newRoles = roles.filter((role) => {
       if (role !== rl) {
         return role
@@ -85,7 +79,6 @@ function RoleItem({ rolesServer, id }: IDescriptionsItem) {
     setRoles(newRoles)
     openNotificationWithIcon("warning", `Статус пользователя ${rl} был удален! Данные обновляться только при сохранении!`, true)
   }
-
 
 
   useEffect(() => {

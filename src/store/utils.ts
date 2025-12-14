@@ -11,7 +11,7 @@ export interface IErrorData {
 
 export interface IAsyncParticle<T> {
   data: T | null;
-  error: IErrorData | SerializedError | null;
+  error: SerializedError | null;
   errorCounter: number;
   status: "idle" | "pending" | "fulfilled" | "rejected";
 }
@@ -116,7 +116,7 @@ export const getAsyncRequestData = <T>(
 ): {
   errorCounter: number | undefined;
   data: T | null;
-  error: IErrorData | SerializedError | null | undefined;
+  error: SerializedError | null | undefined;
   status: IAsyncDataStatus;
 } => ({
   data: stateParam?.data,

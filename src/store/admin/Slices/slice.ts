@@ -10,7 +10,7 @@ import {
   updateUserDataAdmin,
   updateUserRightsAdmin,
 } from "../../apiThunk";
-import type { User } from "../../../types/interface_admin";
+import type { User } from "../../../types/admin";
 
 const adminSlice = createSlice({
   name: "admin",
@@ -31,7 +31,7 @@ const adminSlice = createSlice({
         }
       );
     },
-    replaceOneDataFiled(state, action) {
+    replaceOneDataField(state, action) {
       const userPayload: User = action.payload;
       if (!state.userRequest.data) {
         return;
@@ -67,6 +67,6 @@ const adminSlice = createSlice({
   },
 });
 
-export const { replaceUserData, deleteUserData, replaceOneDataFiled } =
+export const { replaceUserData, deleteUserData, replaceOneDataField } =
   adminSlice.actions;
 export default adminSlice.reducer;

@@ -1,10 +1,11 @@
-import type { NotificationType, Todo } from '../types/interface'
-import { Button, List, Checkbox, Input, Form, Typography, type FormProps, Flex, notification } from 'antd'
+import type { Todo } from '../types/todo'
+import { Button, List, Checkbox, Input, Form, Typography, type FormProps, Flex } from 'antd'
 import { CloseOutlined, DeleteOutlined, FormOutlined, SaveOutlined } from '@ant-design/icons'
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectTab } from '../store/todo/selectors';
 import { deleteTodosTask, fetchTodosByFilter, updateTodosTaskState } from '../store/apiThunk';
 import { memo, useState } from 'react';
+import useNotification from '../hooks/useNotification';
 
 interface Props {
   todo: Todo
@@ -17,18 +18,10 @@ type FieldType = {
 const Task = memo(({ todo }: Props) => {
   const { id, title, created, isDone } = todo
   const [edit, setEdit] = useState<boolean>(false)
-  const tab = useAppSelector(selectTab)
+  const filter = useAppSelector(selectTab)
   const dispatch = useAppDispatch()
   const { Text } = Typography;
-  const [api, contextHolder] = notification.useNotification();
-
-  const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
-    api[type]({
-      message: 'Уведомление!',
-      description:
-        `${error}`,
-    });
-  };
+  const { contextHolder, openNotificationWithIcon } = useNotification()
 
   const onActiveEditStateTask = () => {
     setEdit(true)
@@ -42,26 +35,26 @@ const Task = memo(({ todo }: Props) => {
     try {
       await dispatch(deleteTodosTask({ id }))
     } catch {
-      openNotificationWithIcon('error', "Произошла ошибка при удалении задачи!")
+      openNotificationWithIcon('error', "Произошла ошибка при удалении задачи!", true)
     }
   }
 
   const onSaveEditTask: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
       await dispatch(updateTodosTaskState({ id, title }))
-      await dispatch(fetchTodosByFilter(tab.data ?? "all"))
+      await dispatch(fetchTodosByFilter(filter.data ?? "all"))
       setEdit(false)
     } catch {
-      openNotificationWithIcon('error', "Произошла ошибка при обновлении заголовка задачи")
+      openNotificationWithIcon('error', "Произошла ошибка при обновлении заголовка задачи", true)
     }
   };
 
   const onCompletedTask = async (event: { target: { checked: boolean; }; }) => {
     try {
       await dispatch(updateTodosTaskState({ id, isDone: event.target.checked }))
-      await dispatch(fetchTodosByFilter(tab.data ?? "all"))
+      await dispatch(fetchTodosByFilter(filter.data ?? "all"))
     } catch {
-      openNotificationWithIcon('error', "Произошла ошибка при обновлении готовности задачи:")
+      openNotificationWithIcon('error', "Произошла ошибка при обновлении готовности задачи!", true)
     }
   }
 
