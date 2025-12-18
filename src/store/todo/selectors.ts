@@ -7,24 +7,19 @@ import {
 } from "../utils";
 import type { Filter, MetaResponse, Todo, TodoInfo } from "../../types/todo";
 
-/*
-https://redux-toolkit.js.org/api/createSelector   --- > createDraftSafeSelector
-
-*/
-
 export interface TodoState {
   todos: IAsyncParticle<MetaResponse<Todo, TodoInfo>>;
   createTaskRequest: IAsyncParticle<Todo>;
   updateTaskStateRequest: IAsyncParticle<void>;
   deleteTaskRequest: IAsyncParticle<void>;
-  tab: IAsyncParticle<Filter>;
+  filter: IAsyncParticle<Filter>;
 }
 
 export const selectTodoStore = (state: RootState): TodoState => state.todo;
 
 export const selectTab = createDraftSafeSelector(
   selectTodoStore,
-  (state) => state.tab
+  (state) => state.filter
 );
 
 export const selectTodosFull = createDraftSafeSelector(

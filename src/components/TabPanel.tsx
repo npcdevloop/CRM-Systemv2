@@ -19,7 +19,7 @@ function isFilter(key: unknown): key is Filter {
 const TabPanel = memo(function TabPanel() {
   const dispatch = useAppDispatch();
   const { data } = useAppSelector(selectTodosFull)
-  const { all, inWork, completed } = data?.info || { all: 0, inWork: 0, completed: 0 }
+  const { all = 0, inWork = 0, completed = 0 } = data?.info ?? {}
 
   const onChangeActiveTab = (key: string) => {
     if (isFilter(key)) {

@@ -1,10 +1,10 @@
-import { Button, Input, Flex, Form, notification } from 'antd';
+import { Button, Input, Flex, Form } from 'antd';
 import type { FormProps } from 'antd';
 import { memo } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { createTodosTask, fetchTodosByFilter } from '../store/apiThunk';
 import { selectTab } from '../store/todo/selectors';
-import type { NotificationType } from '../types/todo';
+import useNotification from '../hooks/useNotification';
 
 type FieldType = {
   title: string;
@@ -13,22 +13,14 @@ type FieldType = {
 const AddTaskForm = memo(function AddTaskForm() {
   const dispatch = useAppDispatch();
   const tab = useAppSelector(selectTab)
-  const [api, contextHolder] = notification.useNotification();
-
-  const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
-    api[type]({
-      message: 'Уведомление!',
-      description:
-        `${error}`,
-    });
-  };
+  const { contextHolder, openNotificationWithIcon } = useNotification()
 
   const onCreateTask: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
       await dispatch(createTodosTask({ title }))
       await dispatch(fetchTodosByFilter(tab.data ?? "all"))
     } catch {
-      openNotificationWithIcon('error', "Ошибка при создании задачи!")
+      openNotificationWithIcon('error', "Ошибка при создании задачи!", true)
     }
   };
 

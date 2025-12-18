@@ -17,7 +17,7 @@ type FieldType = {
 const Task = memo(({ todo }: Props) => {
   const { id, title, created, isDone } = todo
   const [edit, setEdit] = useState<boolean>(false)
-  const tab = useAppSelector(selectTab)
+  const filter = useAppSelector(selectTab)
   const dispatch = useAppDispatch()
   const { Text } = Typography;
   const [api, contextHolder] = notification.useNotification();
@@ -49,7 +49,7 @@ const Task = memo(({ todo }: Props) => {
   const onSaveEditTask: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
       await dispatch(updateTodosTaskState({ id, title }))
-      await dispatch(fetchTodosByFilter(tab.data ?? "all"))
+      await dispatch(fetchTodosByFilter(filter.data ?? "all"))
       setEdit(false)
     } catch {
       openNotificationWithIcon('error', "Произошла ошибка при обновлении заголовка задачи")
@@ -59,7 +59,7 @@ const Task = memo(({ todo }: Props) => {
   const onCompletedTask = async (event: { target: { checked: boolean; }; }) => {
     try {
       await dispatch(updateTodosTaskState({ id, isDone: event.target.checked }))
-      await dispatch(fetchTodosByFilter(tab.data ?? "all"))
+      await dispatch(fetchTodosByFilter(filter.data ?? "all"))
     } catch {
       openNotificationWithIcon('error', "Произошла ошибка при обновлении готовности задачи:")
     }

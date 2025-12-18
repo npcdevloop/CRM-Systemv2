@@ -189,3 +189,5 @@ export function loadUserProfile(): Promise<Profile> {
     return data;
   });
 }
+
+export default axiosInstance;
