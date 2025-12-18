@@ -49,8 +49,3 @@ export const selectDeleteUserRequest = createDraftSafeSelector(
   selectAdminStore,
   (state) => getAsyncRequestData(state.deleteUserRequest)
 );
-
-/* export const selectProfileUserStatus = createDraftSafeSelector(
-  selectAuthStore,
-  (state) => getAsyncDataStatus(state.profileRequest)
-); */

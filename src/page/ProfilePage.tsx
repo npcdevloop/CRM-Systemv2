@@ -1,4 +1,4 @@
-import { Avatar, Card, Descriptions, type DescriptionsProps, Breadcrumb, Spin, Flex, Tag } from 'antd';
+import { Avatar, Card, Descriptions, type DescriptionsProps, Breadcrumb, Spin, Flex, Tag, Button } from 'antd';
 import { useEffect } from 'react';
 import Title from 'antd/es/typography/Title';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -6,9 +6,13 @@ import { selectProfileUser } from '../store/auth/selectors';
 import { loadProfileUserAuth } from '../store/apiThunk';
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { LogoutOutlined } from '@ant-design/icons';
+import { logoutUser } from '../api/api';
+import { useNavigate } from 'react-router-dom';
 dayjs.extend(customParseFormat);
 
 function ProfilePage() {
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { data, status: listStatus } = useAppSelector(selectProfileUser)
   const roles = data?.roles
@@ -38,6 +42,11 @@ function ProfilePage() {
     }
   ];
 
+  const onLogOut = () => {
+    logoutUser();
+    navigate('/auth')
+  }
+
   useEffect(() => {
 
     dispatch(loadProfileUserAuth())
@@ -51,7 +60,12 @@ function ProfilePage() {
         <Spin style={{ margin: '0 auto' }} size="large" /> :
 
         <Card style={{ width: '100%', height: '90dvh' }}>
-          <Breadcrumb style={{ margin: '16px 0', fontSize: '1.5rem' }} items={[{ title: 'Профиль' }]} />
+          <Flex align='center'>
+            <Button icon={<LogoutOutlined />} type="primary" style={{ insetInlineEnd: 24 }} onClick={onLogOut}>
+              Выход
+            </Button>
+            <Breadcrumb style={{ margin: '16px 0', fontSize: '1.5rem' }} items={[{ title: 'Профиль' }]} />
+          </Flex>
           <Flex vertical style={{ textAlign: 'center' }}>
             <Avatar size={{ xs: 24, sm: 32, md: 40, lg: 64, xl: 80, xxl: 100 }} src="https://api.dicebear.com/7.x/miniavs/svg?seed=8" style={{ display: 'block', margin: '0 auto' }} />
             <Title level={2} style={{ display: 'block', marginTop: '0.5rem' }}>{data?.username}</Title>

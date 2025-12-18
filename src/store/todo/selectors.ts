@@ -7,11 +7,6 @@ import {
 } from "../utils";
 import type { Filter, MetaResponse, Todo, TodoInfo } from "../../types/todo";
 
-/*
-https://redux-toolkit.js.org/api/createSelector   --- > createDraftSafeSelector
-
-*/
-
 export interface TodoState {
   todos: IAsyncParticle<MetaResponse<Todo, TodoInfo>>;
   createTaskRequest: IAsyncParticle<Todo>;
