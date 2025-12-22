@@ -18,12 +18,8 @@ function LayoutPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation()
 
-
-
   const onSelectItemMenu = async ({ key }: MenuInfo) => {
-
     navigate(key)
-
   }
 
 
