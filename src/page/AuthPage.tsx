@@ -25,7 +25,7 @@ function AuthPage() {
   const dispatch = useAppDispatch()
   const { contextHolder, openNotificationWithIcon } = useNotification()
 
-  const onFinish: FormProps<AuthData>['onFinish'] = async ({ login, password }) => {
+  const onAuth: FormProps<AuthData>['onFinish'] = async ({ login, password }) => {
     try {
       const { refreshToken, accessToken } = await authUser(login, password)
       openNotificationWithIcon('success', 'Авторизация прошла успешно!', true)
@@ -42,7 +42,7 @@ function AuthPage() {
     }
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
+  const onAuthFailed: FormProps<FieldType>['onFinishFailed'] = () => {
     openNotificationWithIcon('error', `Произошла ошибка при авторизации!`, true)
   };
 
@@ -60,8 +60,8 @@ function AuthPage() {
           }
         }
         initialValues={{ remember: true }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
+        onFinish={onAuth}
+        onFinishFailed={onAuthFailed}
         autoComplete="off"
         requiredMark={false}
       >

@@ -24,7 +24,7 @@ function RegisterPage() {
   const { contextHolder, openNotificationWithIcon } = useNotification()
   const phoneMask = '+00000000000';
 
-  const onFinish: FormProps<UserRegistration>['onFinish'] = async ({ login, username, email, phoneNumber, password }) => {
+  const onRegister: FormProps<UserRegistration>['onFinish'] = async ({ login, username, email, phoneNumber, password }) => {
     try {
       await registrationUser(email, login, password, phoneNumber, username)
       openNotificationWithIcon('success', 'Регистрация прошла успешно! Авторизируйтесь!', true)
@@ -40,7 +40,7 @@ function RegisterPage() {
     }
   };
 
-  const onFinishFailed: FormProps<UserRegistration>['onFinishFailed'] = () => {
+  const onRegisterFailed: FormProps<UserRegistration>['onFinishFailed'] = () => {
     openNotificationWithIcon('error', `Произошла ошибка при регистрации!`, true)
   };
 
@@ -58,8 +58,8 @@ function RegisterPage() {
           }
         }
         initialValues={{ remember: true }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
+        onFinish={onRegister}
+        onFinishFailed={onRegisterFailed}
         autoComplete="off"
         requiredMark={false}
       >
