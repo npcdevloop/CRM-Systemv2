@@ -1,47 +1,34 @@
-import { Button, Input, Flex, Form, notification } from 'antd';
+import { Button, Input, Flex, Form } from 'antd';
 import type { FormProps } from 'antd';
-import { createTask } from '../api/api';
 import { memo } from 'react';
-
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { createTodosTask, fetchTodosByFilter } from '../store/apiThunk';
+import { selectTab } from '../store/todo/selectors';
+import useNotification from '../hooks/useNotification';
 
 type FieldType = {
   title: string;
 };
 
-interface Props {
-  updateTasks: () => void
-}
+const AddTaskForm = memo(function AddFieldForm() {
+  const dispatch = useAppDispatch();
+  const tab = useAppSelector(selectTab)
+  const { contextHolder, openNotificationWithIcon } = useNotification()
 
-const AddFieldForm = memo(function AddFieldForm({ updateTasks }: Props) {
-
-  const [api, contextHolder] = notification.useNotification();
-
-  const openNotificationWithIcon = (type: NotificationType, error: unknown) => {
-    api[type]({
-      message: 'Ошибка!',
-      description:
-        `${error}`,
-    });
-  };
-
-  const onFinish: FormProps<FieldType>['onFinish'] = async ({ title }) => {
+  const onCreateTask: FormProps<FieldType>['onFinish'] = async ({ title }) => {
     try {
-      await createTask(title)
-      await updateTasks()
-    } catch (error) {
-      openNotificationWithIcon('error', error)
-      throw new Error(`Ошибка при создании задачи:\n${error}`)
+      await dispatch(createTodosTask({ title }))
+      await dispatch(fetchTodosByFilter(tab.data ?? "all"))
+    } catch {
+      openNotificationWithIcon('error', "Ошибка при создании задачи!", true)
     }
   };
 
   return (
 
     <Form
-      method={"POST"}
       name="title"
-      onFinish={onFinish}
-      variant="underlined"
+      onFinish={onCreateTask}
       style={{ width: "100%", marginBottom: 0 }}
     >
       {contextHolder}
@@ -80,6 +67,6 @@ const AddFieldForm = memo(function AddFieldForm({ updateTasks }: Props) {
   );
 }
 )
-export default AddFieldForm;
+export default AddTaskForm;
 
 
